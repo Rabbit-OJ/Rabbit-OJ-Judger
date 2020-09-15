@@ -4,7 +4,7 @@ import (
 	"Rabbit-OJ-Backend/protobuf"
 	"Rabbit-OJ-Backend/services/channel"
 	"Rabbit-OJ-Backend/services/config"
-	"Rabbit-OJ-Backend/services/storage"
+	"Rabbit-OJ-Backend/services/judger/storage"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"sync"
