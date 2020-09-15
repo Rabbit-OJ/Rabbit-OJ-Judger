@@ -1,9 +1,9 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/protobuf"
 	"Rabbit-OJ-Backend/services/channel"
 	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/protobuf"
 	StorageService "Rabbit-OJ-Backend/services/storage"
 	"fmt"
 	"github.com/golang/protobuf/proto"

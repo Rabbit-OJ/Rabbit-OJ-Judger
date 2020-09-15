@@ -2,8 +2,8 @@ package judger
 
 import (
 	"Rabbit-OJ-Backend/models"
-	"Rabbit-OJ-Backend/protobuf"
 	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/protobuf"
 	StorageService "Rabbit-OJ-Backend/services/storage"
 	"Rabbit-OJ-Backend/utils/files"
 	"encoding/json"
