@@ -4,7 +4,7 @@ import (
 	"Rabbit-OJ-Backend/models"
 	"Rabbit-OJ-Backend/protobuf"
 	"Rabbit-OJ-Backend/services/config"
-	StorageService "Rabbit-OJ-Backend/services/judger/storage"
+	StorageService "Rabbit-OJ-Backend/services/storage"
 	"Rabbit-OJ-Backend/utils/files"
 	"encoding/json"
 	"errors"

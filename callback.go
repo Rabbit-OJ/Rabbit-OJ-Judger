@@ -4,7 +4,7 @@ import (
 	"Rabbit-OJ-Backend/protobuf"
 	"Rabbit-OJ-Backend/services/channel"
 	"Rabbit-OJ-Backend/services/config"
-	"Rabbit-OJ-Backend/services/judger/storage"
+	StorageService "Rabbit-OJ-Backend/services/storage"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"sync"
@@ -14,7 +14,7 @@ var (
 	CallbackWaitGroup sync.WaitGroup
 )
 
-func CallbackAllError(status string, sid uint32, isContest bool, storage *storage.Storage) {
+func CallbackAllError(status string, sid uint32, isContest bool, storage *StorageService.Storage) {
 	go func() {
 		CallbackWaitGroup.Add(1)
 		defer CallbackWaitGroup.Done()
