@@ -1,6 +1,7 @@
 package judger
 
 import (
+	"Rabbit-OJ-Backend/models"
 	"Rabbit-OJ-Backend/services/channel"
 	"Rabbit-OJ-Backend/services/config"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
@@ -10,8 +11,12 @@ import (
 	"sync"
 )
 
+type JudgeResponseCallback = func(sid uint32, isContest bool, judgeResult []*models.JudgeResult)
+
 var (
 	CallbackWaitGroup sync.WaitGroup
+
+	OnJudgeResponse []JudgeResponseCallback
 )
 
 func CallbackAllError(status string, sid uint32, isContest bool, storage *StorageService.Storage) {

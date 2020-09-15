@@ -1,15 +1,12 @@
 package judger
 
 import (
+	"Rabbit-OJ-Backend/models"
 	"Rabbit-OJ-Backend/services/channel"
 	"Rabbit-OJ-Backend/services/config"
-	"Rabbit-OJ-Backend/services/contest"
-	"Rabbit-OJ-Backend/services/db"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
-	"Rabbit-OJ-Backend/services/submission"
 	"fmt"
 	"time"
-	"xorm.io/xorm"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -49,16 +46,18 @@ func JudgeResponseBridge(body []byte) {
 		return
 	}
 
-	status, err := submission.Result(judgeResult)
-	if err != nil {
-		fmt.Println(err)
-		return
+	judgeCaseResult := make([]*models.JudgeResult, len(judgeResult.Result))
+	for i, item := range judgeResult.Result {
+		judgeCaseResult[i] = &models.JudgeResult{
+			Status:    item.Status,
+			TimeUsed:  item.TimeUsed,
+			SpaceUsed: item.SpaceUsed,
+		}
 	}
 
-	if judgeResult.IsContest {
-		CallbackContest(judgeResult.Sid, status == "AC")
+	for _, cb := range OnJudgeResponse {
+		cb(judgeResult.Sid, judgeResult.IsContest, judgeCaseResult)
 	}
-	go CallbackWebSocket(judgeResult.Sid)
 }
 
 func Requeue(topic string, body []byte) {
@@ -67,42 +66,6 @@ func Requeue(topic string, body []byte) {
 		Topic: []string{topic},
 		Key:   []byte(fmt.Sprintf("%d", time.Now().UnixNano())),
 		Value: body,
-	}
-}
-
-func CallbackWebSocket(sid uint32) {
-	submission.JudgeHub.Broadcast <- sid
-}
-
-func CallbackContest(sid uint32, isAccepted bool) {
-	_, err := db.DB.Transaction(func(session *xorm.Session) (interface{}, error) {
-		status := contest.StatusPending
-		if isAccepted {
-			status = contest.StatusAC
-		} else {
-			status = contest.StatusERR
-		}
-
-		if err := contest.ChangeSubmitState(session, sid, status); err != nil {
-			return nil, err
-		}
-
-		submissionInfo, err := contest.SubmissionInfo(session, sid)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := contest.RegenerateUserScore(session,
-			submissionInfo.Cid, submissionInfo.Uid,
-			isAccepted); err != nil {
-			return nil, err
-		}
-
-		return nil, nil
-	})
-
-	if err != nil {
-		fmt.Println(err)
 	}
 }
 
