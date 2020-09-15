@@ -46,14 +46,3 @@ func InitProducer() {
 	go InitSyncProducer()
 	go InitAsyncProducer()
 }
-
-func PublishMessage(topic string, key, buf []byte) error {
-	msg := &sarama.ProducerMessage{
-		Topic: topic,
-		Key:   sarama.StringEncoder(key),
-		Value: sarama.StringEncoder(buf),
-	}
-
-	_, _, err := SyncProducer.SendMessage(msg)
-	return err
-}

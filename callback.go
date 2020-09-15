@@ -2,8 +2,8 @@ package judger
 
 import (
 	"Rabbit-OJ-Backend/models"
-	"Rabbit-OJ-Backend/services/channel"
 	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/mq"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
 	StorageService "Rabbit-OJ-Backend/services/storage"
 	"fmt"
@@ -45,12 +45,7 @@ func CallbackAllError(status string, sid uint32, isContest bool, storage *Storag
 			return
 		}
 
-		channel.MQPublishMessageChannel <- &channel.MQMessage{
-			Async: true,
-			Topic: []string{config.JudgeResponseTopicName},
-			Key:   []byte(fmt.Sprintf("%d", sid)),
-			Value: pro,
-		}
+		mq.PublishMessage(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro, true)
 	}()
 }
 
@@ -73,11 +68,6 @@ func CallbackSuccess(sid uint32, isContest bool, resultList []*protobuf.JudgeCas
 			return
 		}
 
-		channel.MQPublishMessageChannel <- &channel.MQMessage{
-			Async: true,
-			Topic: []string{config.JudgeResponseTopicName},
-			Key:   []byte(fmt.Sprintf("%d", sid)),
-			Value: pro,
-		}
+		mq.PublishMessage(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro, true)
 	}()
 }

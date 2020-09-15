@@ -1,8 +1,8 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/services/channel"
 	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/mq"
 	"context"
 )
 
@@ -21,7 +21,7 @@ func JudgeRequestHandler() {
 
 	for {
 		select {
-		case delivery := <-channel.JudgeRequestDeliveryChan:
+		case delivery := <-mq.JudgeRequestDeliveryChan:
 			queueChan <- delivery
 		case <-MachineContext.Done():
 			return

@@ -36,8 +36,12 @@ func Starter(
 		return err
 	}
 
-	return mq.PublishMessage(
+	if err := mq.PublishMessage(
 		config.JudgeRequestTopicName,
 		[]byte(fmt.Sprintf("%d%d", submission.Sid, submission.Tid)),
-		pro)
+		pro, false); err != nil {
+		return err
+	}
+
+	return nil
 }

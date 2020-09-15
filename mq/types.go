@@ -1,8 +1,12 @@
 package mq
 
 import (
-	"Rabbit-OJ-Backend/services/channel"
 	"github.com/Shopify/sarama"
+)
+
+var (
+	JudgeRequestDeliveryChan  chan []byte
+	JudgeResponseDeliveryChan chan []byte
 )
 
 type JudgeRequestConsumer struct {
@@ -21,7 +25,7 @@ func (consumer *JudgeRequestConsumer) Cleanup(sarama.ConsumerGroupSession) error
 func (consumer *JudgeRequestConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for message := range claim.Messages() {
 		go func() {
-			channel.JudgeRequestDeliveryChan <- message.Value
+			JudgeRequestDeliveryChan <- message.Value
 		}()
 		session.MarkMessage(message, "")
 	}
@@ -45,7 +49,7 @@ func (consumer *JudgeResponseConsumer) Cleanup(sarama.ConsumerGroupSession) erro
 func (consumer *JudgeResponseConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for message := range claim.Messages() {
 		go func() {
-			channel.JudgeResponseDeliveryChan <- message.Value
+			JudgeResponseDeliveryChan <- message.Value
 		}()
 		session.MarkMessage(message, "")
 	}
