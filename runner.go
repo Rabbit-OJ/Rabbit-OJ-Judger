@@ -1,10 +1,10 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/services/judger/config"
-	"Rabbit-OJ-Backend/services/judger/docker"
-	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
-	"Rabbit-OJ-Backend/services/judger/utils"
+	"Rabbit-OJ-Judger/config"
+	"Rabbit-OJ-Judger/docker"
+	JudgerModels "Rabbit-OJ-Judger/models"
+	"Rabbit-OJ-Judger/utils"
 	"errors"
 	"fmt"
 	"github.com/docker/docker/api/types"

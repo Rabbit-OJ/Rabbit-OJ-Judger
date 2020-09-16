@@ -1,8 +1,8 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/services/judger/compare"
-	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
+	"Rabbit-OJ-Judger/compare"
+	JudgerModels "Rabbit-OJ-Judger/models"
 )
 
 const (

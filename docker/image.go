@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"Rabbit-OJ-Backend/services/judger/utils"
+	"Rabbit-OJ-Judger/utils"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"io"

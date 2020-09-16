@@ -1,10 +1,10 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/services/judger/config"
-	JudgerModel "Rabbit-OJ-Backend/services/judger/models"
-	"Rabbit-OJ-Backend/services/judger/protobuf"
-	"Rabbit-OJ-Backend/services/judger/utils"
+	"Rabbit-OJ-Judger/config"
+	JudgerModel "Rabbit-OJ-Judger/models"
+	"Rabbit-OJ-Judger/protobuf"
+	"Rabbit-OJ-Judger/utils"
 	"encoding/json"
 	"errors"
 	"fmt"

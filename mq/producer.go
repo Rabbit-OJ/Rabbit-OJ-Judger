@@ -1,7 +1,7 @@
 package mq
 
 import (
-	"Rabbit-OJ-Backend/services/judger/config"
+	"Rabbit-OJ-Judger/config"
 	"github.com/Shopify/sarama"
 )
 

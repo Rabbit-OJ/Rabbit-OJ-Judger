@@ -1,8 +1,8 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/services/judger/config"
-	"Rabbit-OJ-Backend/services/judger/mq"
+	"Rabbit-OJ-Judger/config"
+	"Rabbit-OJ-Judger/mq"
 	"context"
 )
 

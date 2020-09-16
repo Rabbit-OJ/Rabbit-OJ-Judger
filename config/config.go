@@ -1,6 +1,6 @@
 package config
 
-import JudgerModels "Rabbit-OJ-Backend/services/judger/models"
+import JudgerModels "Rabbit-OJ-Judger/models"
 
 var (
 	Global *JudgerModels.JudgerConfigType

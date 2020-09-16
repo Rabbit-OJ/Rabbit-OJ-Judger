@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"Rabbit-OJ-Backend/services/judger/config"
+	"Rabbit-OJ-Judger/config"
 	"context"
 	"fmt"
 	"github.com/docker/docker/api/types"
