@@ -43,7 +43,7 @@ func CallbackAllError(status string, sid uint32, isContest bool, datasetCount ui
 			return
 		}
 
-		mq.PublishMessage(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro, true)
+		mq.PublishMessageAsync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro)
 	}()
 }
 
@@ -66,6 +66,6 @@ func CallbackSuccess(sid uint32, isContest bool, resultList []*protobuf.JudgeCas
 			return
 		}
 
-		mq.PublishMessage(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro, true)
+		mq.PublishMessageAsync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro)
 	}()
 }

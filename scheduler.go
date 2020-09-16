@@ -2,9 +2,9 @@ package judger
 
 import (
 	"Rabbit-OJ-Backend/services/judger/config"
-	models2 "Rabbit-OJ-Backend/services/judger/models"
+	JudgerModel "Rabbit-OJ-Backend/services/judger/models"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
-	"Rabbit-OJ-Backend/utils/files"
+	"Rabbit-OJ-Backend/services/judger/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -31,7 +31,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 	}()
 
 	// initialize files
-	currentPath, err := files.SubmissionGenerateDirWithMkdir(sid)
+	currentPath, err := utils.SubmissionGenerateDirWithMkdir(sid)
 	if err != nil {
 		return false, err
 	}
@@ -43,13 +43,13 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		}
 	}()
 
-	outputPath, err := files.JudgeGenerateOutputDirWithMkdir(currentPath)
+	outputPath, err := utils.JudgeGenerateOutputDirWithMkdir(currentPath)
 	if err != nil {
 		return false, err
 	}
 
 	codePath := fmt.Sprintf("%s/", currentPath)
-	casePath, err := files.JudgeCaseDir(request.Tid, request.Version)
+	casePath, err := utils.JudgeCaseDir(request.Tid, request.Version)
 	if err != nil {
 		return false, err
 	}
@@ -104,7 +104,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		return true, err
 	}
 
-	var testResultArr []models2.TestResult
+	var testResultArr []JudgerModel.TestResult
 	if err := json.Unmarshal(jsonFileByte, &testResultArr); err != nil || testResultArr == nil {
 		CallbackAllError("RE", sid, request.IsContest, testCaseCount)
 		return true, err
@@ -115,7 +115,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 	allStdin := make([]CollectedStdout, testCaseCount)
 	for i := uint32(1); i <= testCaseCount; i++ {
 
-		path, err := files.JudgeFilePath(
+		path, err := utils.JudgeFilePath(
 			tid,
 			version,
 			strconv.FormatUint(uint64(i), 10),

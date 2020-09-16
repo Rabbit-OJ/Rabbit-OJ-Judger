@@ -56,7 +56,7 @@ func JudgeResponseBridge(body []byte) {
 }
 
 func Requeue(topic string, body []byte) {
-	mq.PublishMessage(topic, []byte(fmt.Sprintf("%d", time.Now().UnixNano())), body, true)
+	mq.PublishMessageAsync(topic, []byte(fmt.Sprintf("%d", time.Now().UnixNano())), body)
 }
 
 func JudgeResultHandler() {

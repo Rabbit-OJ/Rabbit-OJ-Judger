@@ -4,7 +4,7 @@ import (
 	"Rabbit-OJ-Backend/services/judger/config"
 	"Rabbit-OJ-Backend/services/judger/docker"
 	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
-	"Rabbit-OJ-Backend/utils/files"
+	"Rabbit-OJ-Backend/services/judger/utils"
 	"errors"
 	"fmt"
 	"github.com/docker/docker/api/types"
@@ -23,7 +23,7 @@ func Runner(
 	vmPath := codePath + "vm/"
 	fmt.Printf("(%d) [Runner] Compile OK, start run container \n", sid)
 
-	err := files.TouchFile(codePath + "result.json")
+	err := utils.TouchFile(codePath + "result.json")
 	if err != nil {
 		fmt.Printf("(%d) %+v \n", sid, err)
 		return err
@@ -52,14 +52,14 @@ func Runner(
 			},
 		},
 		Binds: []string{
-			files.DockerHostConfigBinds(codePath+"result.json", "/result/info.json"),
-			files.DockerHostConfigBinds(outputPath, "/output"),
+			utils.DockerHostConfigBinds(codePath+"result.json", "/result/info.json"),
+			utils.DockerHostConfigBinds(outputPath, "/output"),
 		},
 	}
 
 	if !compileInfo.NoBuild {
 		containerHostConfig.Binds = append(containerHostConfig.Binds,
-			files.DockerHostConfigBinds(vmPath, path.Dir(compileInfo.BuildTarget)))
+			utils.DockerHostConfigBinds(vmPath, path.Dir(compileInfo.BuildTarget)))
 	}
 
 	if config.Global.AutoRemove.Containers {
@@ -79,7 +79,7 @@ func Runner(
 
 	if compileInfo.NoBuild {
 		fmt.Printf("(%d) [Runner] Copying files to container \n", sid)
-		io, err := files.ConvertToTar([]files.TarFileBasicInfo{{path.Base(compileInfo.Source), code}})
+		io, err := utils.ConvertToTar([]utils.TarFileBasicInfo{{path.Base(compileInfo.Source), code}})
 		if err != nil {
 			return err
 		}

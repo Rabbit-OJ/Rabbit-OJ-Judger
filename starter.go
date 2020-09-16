@@ -41,10 +41,10 @@ func Starter(info *StarterType) error {
 		return err
 	}
 
-	if err := mq.PublishMessage(
+	if err := mq.PublishMessageSync(
 		config.JudgeRequestTopicName,
 		[]byte(fmt.Sprintf("%d%d", info.Sid, info.Tid)),
-		pro, false); err != nil {
+		pro); err != nil {
 		return err
 	}
 

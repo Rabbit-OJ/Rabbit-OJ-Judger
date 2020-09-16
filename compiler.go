@@ -4,7 +4,7 @@ import (
 	"Rabbit-OJ-Backend/services/judger/config"
 	"Rabbit-OJ-Backend/services/judger/docker"
 	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
-	"Rabbit-OJ-Backend/utils/files"
+	"Rabbit-OJ-Backend/services/judger/utils"
 	"errors"
 	"fmt"
 	"github.com/docker/docker/api/types"
@@ -29,7 +29,7 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 
 	containerHostConfig := &container.HostConfig{
 		Binds: []string{
-			files.DockerHostConfigBinds(vmPath, path.Dir(compileInfo.BuildTarget)),
+			utils.DockerHostConfigBinds(vmPath, path.Dir(compileInfo.BuildTarget)),
 		},
 		Resources: container.Resources{
 			NanoCPUs: compileInfo.Constraints.CPU,
@@ -53,7 +53,7 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 	}
 
 	fmt.Printf("(%d) [Compile] Copying files to container \n", sid)
-	io, err := files.ConvertToTar([]files.TarFileBasicInfo{{path.Base(compileInfo.Source), code}})
+	io, err := utils.ConvertToTar([]utils.TarFileBasicInfo{{path.Base(compileInfo.Source), code}})
 	if err != nil {
 		return err
 	}
@@ -102,9 +102,8 @@ func checkBuildResult(path string) error {
 		return err
 	}
 
-	if file.Size() <= int64(len(files.MagicBytes)) {
+	if file.Size() <= int64(len(utils.MagicBytes)) {
 		return errors.New("compile file invalid")
 	}
-
 	return nil
 }

@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"Rabbit-OJ-Backend/utils/files"
+	"Rabbit-OJ-Backend/services/judger/utils"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"io"
@@ -26,15 +26,15 @@ func BuildImage(tag string) {
 	fmt.Println("[Docker] building image from local Dockerfile : " + tag)
 
 	name := strings.Split(tag, ":")[0]
-	dockerFileBytes, err := files.ReadFileBytes(fmt.Sprintf("./dockerfiles/%s/Dockerfile", name))
+	dockerFileBytes, err := utils.ReadFileBytes(fmt.Sprintf("./dockerfiles/%s/Dockerfile", name))
 	if err != nil {
 		panic(err)
 	}
-	serverFileBytes, err := files.ReadFileBytes("./tester")
+	serverFileBytes, err := utils.ReadFileBytes("./tester")
 	if err != nil {
 		panic(err)
 	}
-	tarBytes, err := files.ConvertToTar([]files.TarFileBasicInfo{
+	tarBytes, err := utils.ConvertToTar([]utils.TarFileBasicInfo{
 		{
 			Name: "Dockerfile",
 			Body: dockerFileBytes,
