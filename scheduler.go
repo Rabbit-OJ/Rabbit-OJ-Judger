@@ -1,10 +1,9 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/models"
 	"Rabbit-OJ-Backend/services/judger/config"
+	models2 "Rabbit-OJ-Backend/services/judger/models"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
-	StorageService "Rabbit-OJ-Backend/services/storage"
 	"Rabbit-OJ-Backend/utils/files"
 	"encoding/json"
 	"errors"
@@ -62,7 +61,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 
 	fmt.Printf("(%d) [Scheduler] Init test cases \n", sid)
 	// get case
-	storage, err := StorageService.InitTestCase(request.Tid, request.Version)
+	testCaseCount, tid, version, err := StorageInitFunc(request.Tid, request.Version)
 	if err != nil {
 		fmt.Printf("(%d) [Scheduler] Case Error %+v \n", sid, err)
 		return false, err
@@ -73,7 +72,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		fmt.Printf("(%d) [Scheduler] Start Compile \n", sid)
 		if err := Compiler(sid, codePath, request.Code, &compileInfo); err != nil {
 			fmt.Printf("(%d) [Scheduler] CE %+v \n", sid, err)
-			CallbackAllError("CE", sid, request.IsContest, storage)
+			CallbackAllError("CE", sid, request.IsContest, testCaseCount)
 			return true, err
 		}
 		fmt.Printf("(%d) [Scheduler] Compile OK \n", sid)
@@ -85,7 +84,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		sid,
 		codePath,
 		&compileInfo,
-		strconv.FormatUint(uint64(storage.DatasetCount), 10),
+		strconv.FormatUint(uint64(testCaseCount), 10),
 		strconv.FormatUint(uint64(request.TimeLimit), 10),
 		strconv.FormatUint(uint64(request.SpaceLimit), 10),
 		casePath,
@@ -93,7 +92,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		request.Code); err != nil {
 
 		fmt.Printf("(%d) [Scheduler] RE %+v \n", sid, err)
-		CallbackAllError("RE", sid, request.IsContest, storage)
+		CallbackAllError("RE", sid, request.IsContest, testCaseCount)
 		return true, err
 	}
 	fmt.Printf("(%d) [Scheduler] Runner OK \n", sid)
@@ -101,24 +100,24 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 	fmt.Printf("(%d) [Scheduler] Reading result \n", sid)
 	jsonFileByte, err := ioutil.ReadFile(codePath + "result.json")
 	if err != nil {
-		CallbackAllError("RE", sid, request.IsContest, storage)
+		CallbackAllError("RE", sid, request.IsContest, testCaseCount)
 		return true, err
 	}
 
-	var testResultArr []models.TestResult
+	var testResultArr []models2.TestResult
 	if err := json.Unmarshal(jsonFileByte, &testResultArr); err != nil || testResultArr == nil {
-		CallbackAllError("RE", sid, request.IsContest, storage)
+		CallbackAllError("RE", sid, request.IsContest, testCaseCount)
 		return true, err
 	}
 
 	// collect std::out
 	fmt.Printf("(%d) [Scheduler] Collecting stdout \n", sid)
-	allStdin := make([]CollectedStdout, storage.DatasetCount)
-	for i := uint32(1); i <= storage.DatasetCount; i++ {
+	allStdin := make([]CollectedStdout, testCaseCount)
+	for i := uint32(1); i <= testCaseCount; i++ {
 
 		path, err := files.JudgeFilePath(
-			storage.Tid,
-			storage.Version,
+			tid,
+			version,
 			strconv.FormatUint(uint64(i), 10),
 			"out")
 
@@ -134,7 +133,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		allStdin[i-1].RightStdout = string(stdoutByte)
 	}
 
-	for i := uint32(1); i <= storage.DatasetCount; i++ {
+	for i := uint32(1); i <= testCaseCount; i++ {
 		path := fmt.Sprintf("%s/%d.out", outputPath, i)
 
 		stdoutByte, err := ioutil.ReadFile(path)
@@ -146,7 +145,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 	}
 	// judge std::out
 	fmt.Printf("(%d) [Scheduler] Judging stdout \n", sid)
-	resultList := make([]*protobuf.JudgeCaseResult, storage.DatasetCount)
+	resultList := make([]*protobuf.JudgeCaseResult, testCaseCount)
 
 	for index, item := range allStdin {
 		testResult := &testResultArr[index]

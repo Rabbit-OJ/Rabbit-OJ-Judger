@@ -1,17 +1,16 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/models"
 	"Rabbit-OJ-Backend/services/judger/config"
+	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
 	"Rabbit-OJ-Backend/services/judger/mq"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
-	StorageService "Rabbit-OJ-Backend/services/storage"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"sync"
 )
 
-type JudgeResponseCallback = func(sid uint32, isContest bool, judgeResult []*models.JudgeResult)
+type JudgeResponseCallback = func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult)
 
 var (
 	CallbackWaitGroup sync.WaitGroup
@@ -19,14 +18,13 @@ var (
 	OnJudgeResponse []JudgeResponseCallback
 )
 
-func CallbackAllError(status string, sid uint32, isContest bool, storage *StorageService.Storage) {
+func CallbackAllError(status string, sid uint32, isContest bool, datasetCount uint32) {
 	go func() {
 		CallbackWaitGroup.Add(1)
 		defer CallbackWaitGroup.Done()
 
 		fmt.Printf("(%d) Callback judge error with status: %s \n", sid, status)
-
-		ceResult := make([]*protobuf.JudgeCaseResult, storage.DatasetCount)
+		ceResult := make([]*protobuf.JudgeCaseResult, datasetCount)
 		for i := range ceResult {
 			ceResult[i] = &protobuf.JudgeCaseResult{
 				Status: status,

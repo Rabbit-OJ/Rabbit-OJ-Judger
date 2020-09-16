@@ -1,8 +1,8 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/models"
 	"Rabbit-OJ-Backend/services/judger/config"
+	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
 	"Rabbit-OJ-Backend/services/judger/mq"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
 	"fmt"
@@ -41,9 +41,9 @@ func JudgeResponseBridge(body []byte) {
 		return
 	}
 
-	judgeCaseResult := make([]*models.JudgeResult, len(judgeResult.Result))
+	judgeCaseResult := make([]*JudgerModels.JudgeResult, len(judgeResult.Result))
 	for i, item := range judgeResult.Result {
-		judgeCaseResult[i] = &models.JudgeResult{
+		judgeCaseResult[i] = &JudgerModels.JudgeResult{
 			Status:    item.Status,
 			TimeUsed:  item.TimeUsed,
 			SpaceUsed: item.SpaceUsed,

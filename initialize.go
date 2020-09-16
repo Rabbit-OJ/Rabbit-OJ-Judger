@@ -1,7 +1,6 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/models"
 	"Rabbit-OJ-Backend/services/judger/config"
 	JudgerConfig "Rabbit-OJ-Backend/services/judger/config"
 	"Rabbit-OJ-Backend/services/judger/docker"
@@ -12,8 +11,14 @@ import (
 	"os"
 )
 
-func InitJudger(ctx context.Context, config *JudgerModels.JudgerConfigType) {
+type StorageInitFuncType = func(tid uint32, version string) (uint32, uint32, string, error)
+var (
+	StorageInitFunc StorageInitFuncType
+)
+
+func InitJudger(ctx context.Context, config *JudgerModels.JudgerConfigType, storageInitFunc StorageInitFuncType) {
 	JudgerConfig.Global = config
+	StorageInitFunc = storageInitFunc
 	if os.Getenv("Role") == "Judger" {
 		docker.InitDocker()
 	}
@@ -48,7 +53,7 @@ func Language() {
 
 	JudgerConfig.LocalImages = map[string]bool{}
 	JudgerConfig.CompileObject = map[string]JudgerModels.CompileInfo{}
-	JudgerConfig.SupportLanguage = make([]models.SupportLanguage, languageCount)
+	JudgerConfig.SupportLanguage = make([]JudgerModels.SupportLanguage, languageCount)
 
 	for _, item := range config.Global.LocalImages {
 		JudgerConfig.LocalImages[item] = true
@@ -58,7 +63,7 @@ func Language() {
 			continue
 		}
 
-		JudgerConfig.SupportLanguage[index] = models.SupportLanguage{
+		JudgerConfig.SupportLanguage[index] = JudgerModels.SupportLanguage{
 			Name:  item.Name,
 			Value: item.ID,
 		}
