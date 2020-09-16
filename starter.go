@@ -1,10 +1,10 @@
 package judger
 
 import (
-	"Rabbit-OJ-Judger/config"
-	"Rabbit-OJ-Judger/mq"
-	"Rabbit-OJ-Judger/protobuf"
 	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
 	"github.com/golang/protobuf/proto"
 	"strconv"
 	"time"

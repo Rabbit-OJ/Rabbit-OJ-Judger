@@ -1,7 +1,7 @@
 package config
 
 import (
-	JuderModels "Rabbit-OJ-Judger/models"
+	JuderModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 )
 
 var (

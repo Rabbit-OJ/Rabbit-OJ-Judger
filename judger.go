@@ -1,12 +1,12 @@
 package judger
 
 import (
-	"Rabbit-OJ-Judger/compare"
-	JudgerModels "Rabbit-OJ-Judger/models"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/compare"
+	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 )
 
 const (
-	StatusOK  = "OK"
+	StatusOK = "OK"
 )
 
 func JudgeOneCase(testResult *JudgerModels.TestResult, stdout, rightStdout, compMode string) *JudgerModels.JudgeResult {

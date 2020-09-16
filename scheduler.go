@@ -1,13 +1,13 @@
 package judger
 
 import (
-	"Rabbit-OJ-Judger/config"
-	JudgerModel "Rabbit-OJ-Judger/models"
-	"Rabbit-OJ-Judger/protobuf"
-	"Rabbit-OJ-Judger/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	JudgerModel "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/utils"
 	"io/ioutil"
 	"os"
 	"strconv"

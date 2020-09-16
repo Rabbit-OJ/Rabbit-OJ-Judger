@@ -1,17 +1,18 @@
 package judger
 
 import (
-	"Rabbit-OJ-Judger/config"
-	JudgerConfig "Rabbit-OJ-Judger/config"
-	"Rabbit-OJ-Judger/docker"
-	JudgerModels "Rabbit-OJ-Judger/models"
-	"Rabbit-OJ-Judger/mq"
 	"context"
 	"encoding/json"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	JudgerConfig "github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
+	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
 	"os"
 )
 
 type StorageInitFuncType = func(tid uint32, version string) (uint32, uint32, string, error)
+
 var (
 	StorageInitFunc StorageInitFuncType
 )
@@ -41,7 +42,6 @@ func MQ(ctx context.Context) {
 		go JudgeResultHandler()
 	}
 }
-
 
 func Language() {
 	languageCount := 0
@@ -78,4 +78,3 @@ func Language() {
 		JudgerConfig.CompileObject[item.ID] = currentCompileObject
 	}
 }
-

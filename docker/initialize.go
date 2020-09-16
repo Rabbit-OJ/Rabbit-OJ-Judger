@@ -1,9 +1,9 @@
 package docker
 
 import (
-	"Rabbit-OJ-Judger/config"
 	"context"
 	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 )
@@ -20,7 +20,6 @@ func InitDocker() {
 		InitDockerImages()
 	}
 }
-
 
 func InitDockerImages() {
 	needImages := make(map[string]bool)

@@ -1,9 +1,9 @@
 package judger
 
 import (
-	"Rabbit-OJ-Judger/config"
-	"Rabbit-OJ-Judger/mq"
 	"context"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
 )
 
 var (
@@ -28,4 +28,3 @@ func JudgeRequestHandler() {
 		}
 	}
 }
-

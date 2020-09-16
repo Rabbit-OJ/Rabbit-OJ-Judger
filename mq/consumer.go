@@ -1,9 +1,9 @@
 package mq
 
 import (
-	"Rabbit-OJ-Judger/config"
 	"context"
 	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
 	"log"
 
 	"github.com/Shopify/sarama"
