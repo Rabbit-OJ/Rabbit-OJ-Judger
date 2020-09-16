@@ -1,4 +1,4 @@
-module Rabbit-OJ-Judger
+module github.com/Rabbit-OJ/Rabbit-OJ-Judger
 
 go 1.15
 
