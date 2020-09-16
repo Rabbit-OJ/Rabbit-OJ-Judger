@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/config"
 	"context"
 	"fmt"
 	"github.com/docker/docker/api/types"
@@ -16,7 +16,7 @@ func InitDocker() {
 	}
 
 	Context, Client = ctx, cli
-	if config.Global.Judger.Extensions.AutoPull {
+	if config.Global.Extensions.AutoPull {
 		InitDockerImages()
 	}
 }

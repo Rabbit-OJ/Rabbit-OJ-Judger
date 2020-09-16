@@ -1,12 +1,13 @@
 package models
 
 type JudgerConfigType struct {
-	Rpc         string     `json:"rpc"`
-	AutoRemove  autoRemove `json:"auto_remove"`
-	Concurrent  concurrent `json:"concurrent"`
-	LocalImages []string   `json:"local_images"`
-	Languages   []language `json:"languages"`
-	Extensions  extensions `json:"extensions"`
+	Kafka       kafkaConfig `json:"kafka"`
+	Rpc         string      `json:"rpc"`
+	AutoRemove  autoRemove  `json:"auto_remove"`
+	Concurrent  concurrent  `json:"concurrent"`
+	LocalImages []string    `json:"local_images"`
+	Languages   []language  `json:"languages"`
+	Extensions  extensions  `json:"extensions"`
 }
 
 type extensions struct {
@@ -59,4 +60,8 @@ type Constraints struct {
 	RunTimeout   int   `json:"run_timeout"`   // unit: seconds
 	CPU          int64 `json:"cpu"`           // unit: COREs / 1e9
 	Memory       int64 `json:"memory"`        // unit: bytes
+}
+
+type kafkaConfig struct {
+	Brokers []string `json:"brokers"`
 }

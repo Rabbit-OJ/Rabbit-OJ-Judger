@@ -1,7 +1,7 @@
 package mq
 
 import (
-	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/config"
 	"context"
 	"fmt"
 	"log"

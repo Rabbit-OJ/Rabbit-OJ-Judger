@@ -2,7 +2,7 @@ package judger
 
 import (
 	"Rabbit-OJ-Backend/models"
-	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/config"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
 	StorageService "Rabbit-OJ-Backend/services/storage"
 	"Rabbit-OJ-Backend/utils/files"
@@ -39,7 +39,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 
 	defer func() {
 		fmt.Printf("(%d) [Scheduler] Cleaning files \n", sid)
-		if config.Global.Judger.AutoRemove.Files {
+		if config.Global.AutoRemove.Files {
 			_ = os.RemoveAll(currentPath)
 		}
 	}()

@@ -2,7 +2,7 @@ package judger
 
 import (
 	"Rabbit-OJ-Backend/models"
-	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/config"
 	"Rabbit-OJ-Backend/services/judger/mq"
 	"Rabbit-OJ-Backend/services/judger/protobuf"
 	"fmt"
@@ -18,8 +18,8 @@ func JudgeRequestBridge(body []byte) {
 		return
 	}
 
-	if config.Global.Judger.Extensions.Expire.Enabled &&
-		judgeRequest.Time-time.Now().Unix() > config.Global.Judger.Extensions.CheckJudge.Interval*int64(time.Minute) {
+	if config.Global.Extensions.Expire.Enabled &&
+		judgeRequest.Time-time.Now().Unix() > config.Global.Extensions.CheckJudge.Interval*int64(time.Minute) {
 		fmt.Printf("[Bridge] Received expired judge %d , will ignore this\n", judgeRequest.Sid)
 		return
 	}

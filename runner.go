@@ -1,7 +1,7 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/config"
 	"Rabbit-OJ-Backend/services/judger/docker"
 	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
 	"Rabbit-OJ-Backend/utils/files"
@@ -62,7 +62,7 @@ func Runner(
 			files.DockerHostConfigBinds(vmPath, path.Dir(compileInfo.BuildTarget)))
 	}
 
-	if config.Global.Judger.AutoRemove.Containers {
+	if config.Global.AutoRemove.Containers {
 		containerHostConfig.AutoRemove = true
 	}
 

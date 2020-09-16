@@ -1,7 +1,7 @@
 package judger
 
 import (
-	"Rabbit-OJ-Backend/services/config"
+	"Rabbit-OJ-Backend/services/judger/config"
 	"Rabbit-OJ-Backend/services/judger/mq"
 	"context"
 )
@@ -15,7 +15,7 @@ func JudgeRequestHandler() {
 	queueChan := make(chan []byte)
 
 	MachineContext, MachineContextCancelFunc = context.WithCancel(context.Background())
-	for i := uint(0); i < config.Global.Judger.Concurrent.Judge; i++ {
+	for i := uint(0); i < config.Global.Concurrent.Judge; i++ {
 		go StartMachine(MachineContext, i, queueChan)
 	}
 
