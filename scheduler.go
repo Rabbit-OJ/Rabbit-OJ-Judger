@@ -39,7 +39,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 
 	defer func() {
 		fmt.Printf("(%d) [Scheduler] Cleaning files \n", sid)
-		if config.Global.AutoRemove.Files {
+		if config.Global.Judger.AutoRemove.Files {
 			_ = os.RemoveAll(currentPath)
 		}
 	}()

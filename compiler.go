@@ -3,6 +3,7 @@ package judger
 import (
 	"Rabbit-OJ-Backend/services/config"
 	"Rabbit-OJ-Backend/services/judger/docker"
+	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
 	"Rabbit-OJ-Backend/utils/files"
 	"errors"
 	"fmt"
@@ -13,7 +14,7 @@ import (
 	"time"
 )
 
-func Compiler(sid uint32, codePath string, code []byte, compileInfo *config.CompileInfo) error {
+func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModels.CompileInfo) error {
 	vmPath := codePath + "vm/"
 	fmt.Printf("(%d) [Compile] Start %s \n", sid, codePath)
 
@@ -36,7 +37,7 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *config.Comp
 		},
 	}
 
-	if config.Global.AutoRemove.Containers {
+	if config.Global.Judger.AutoRemove.Containers {
 		containerHostConfig.AutoRemove = true
 	}
 

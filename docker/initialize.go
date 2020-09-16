@@ -16,7 +16,7 @@ func InitDocker() {
 	}
 
 	Context, Client = ctx, cli
-	if config.Global.Extensions.AutoPull {
+	if config.Global.Judger.Extensions.AutoPull {
 		InitDockerImages()
 	}
 }

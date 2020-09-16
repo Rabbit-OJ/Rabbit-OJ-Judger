@@ -3,6 +3,7 @@ package judger
 import (
 	"Rabbit-OJ-Backend/services/config"
 	"Rabbit-OJ-Backend/services/judger/docker"
+	JudgerModels "Rabbit-OJ-Backend/services/judger/models"
 	"Rabbit-OJ-Backend/utils/files"
 	"errors"
 	"fmt"
@@ -15,7 +16,7 @@ import (
 
 func Runner(
 	sid uint32, codePath string,
-	compileInfo *config.CompileInfo,
+	compileInfo *JudgerModels.CompileInfo,
 	caseCount, timeLimit, spaceLimit, casePath, outputPath string,
 	code []byte,
 ) error {
@@ -61,7 +62,7 @@ func Runner(
 			files.DockerHostConfigBinds(vmPath, path.Dir(compileInfo.BuildTarget)))
 	}
 
-	if config.Global.AutoRemove.Containers {
+	if config.Global.Judger.AutoRemove.Containers {
 		containerHostConfig.AutoRemove = true
 	}
 

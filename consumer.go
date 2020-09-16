@@ -15,7 +15,7 @@ func JudgeRequestHandler() {
 	queueChan := make(chan []byte)
 
 	MachineContext, MachineContextCancelFunc = context.WithCancel(context.Background())
-	for i := uint(0); i < config.Global.Concurrent.Judge; i++ {
+	for i := uint(0); i < config.Global.Judger.Concurrent.Judge; i++ {
 		go StartMachine(MachineContext, i, queueChan)
 	}
 
