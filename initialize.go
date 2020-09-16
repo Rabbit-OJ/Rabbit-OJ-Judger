@@ -20,7 +20,7 @@ var (
 func InitJudger(ctx context.Context, config *JudgerModels.JudgerConfigType, storageInitFunc StorageInitFuncType) {
 	JudgerConfig.Global = config
 	StorageInitFunc = storageInitFunc
-	if os.Getenv("Role") == "Judger" {
+	if os.Getenv("Role") == "Judge" {
 		docker.InitDocker()
 	}
 	Language()
