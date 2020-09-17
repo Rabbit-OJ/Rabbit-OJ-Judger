@@ -10,6 +10,7 @@ import (
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/utils"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -67,20 +68,28 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		return false, err
 	}
 
+	var buildProduction []byte
 	if !compileInfo.NoBuild {
 		// compile
 		fmt.Printf("(%d) [Scheduler] Start Compile \n", sid)
-		if err := Compiler(sid, codePath, request.Code, &compileInfo); err != nil {
+		if buildProduction, err = Compiler(
+			sid,
+			codePath,
+			request.Code,
+			&compileInfo,
+		); err != nil {
 			fmt.Printf("(%d) [Scheduler] CE %+v \n", sid, err)
 			CallbackAllError("CE", sid, request.IsContest, testCaseCount)
 			return true, err
 		}
+
 		fmt.Printf("(%d) [Scheduler] Compile OK \n", sid)
 	}
 
 	// run
 	fmt.Printf("(%d) [Scheduler] Start Runner \n", sid)
-	if err := Runner(
+	var runnerCollectedStdout map[string][]byte
+	if runnerCollectedStdout, err = Runner(
 		sid,
 		codePath,
 		&compileInfo,
@@ -89,7 +98,8 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		strconv.FormatUint(uint64(request.SpaceLimit), 10),
 		casePath,
 		outputPath,
-		request.Code); err != nil {
+		request.Code,
+		buildProduction); err != nil {
 
 		fmt.Printf("(%d) [Scheduler] RE %+v \n", sid, err)
 		CallbackAllError("RE", sid, request.IsContest, testCaseCount)
@@ -98,7 +108,7 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 	fmt.Printf("(%d) [Scheduler] Runner OK \n", sid)
 
 	fmt.Printf("(%d) [Scheduler] Reading result \n", sid)
-	jsonFileByte, err := ioutil.ReadFile(codePath + "result.json")
+	jsonFileByte, err := ioutil.ReadFile(filepath.Join(codePath, "result.json"))
 	if err != nil {
 		CallbackAllError("RE", sid, request.IsContest, testCaseCount)
 		return true, err
@@ -133,16 +143,30 @@ func Scheduler(request *protobuf.JudgeRequest) (bool, error) {
 		allStdin[i-1].RightStdout = string(stdoutByte)
 	}
 
-	for i := uint32(1); i <= testCaseCount; i++ {
-		path := fmt.Sprintf("%s/%d.out", outputPath, i)
+	// optimize this: avoid writing, reading file in the disk (performance optimization)
+	if runnerCollectedStdout == nil {
+		for i := uint32(1); i <= testCaseCount; i++ {
+			path := fmt.Sprintf("%s/%d.out", outputPath, i)
 
-		stdoutByte, err := ioutil.ReadFile(path)
-		if err != nil {
-			allStdin[i-1].Stdout = ""
-		} else {
-			allStdin[i-1].Stdout = string(stdoutByte)
+			stdoutByte, err := ioutil.ReadFile(path)
+			if err != nil {
+				allStdin[i-1].Stdout = ""
+			} else {
+				allStdin[i-1].Stdout = string(stdoutByte)
+			}
+		}
+	} else {
+		for i := uint32(1); i <= testCaseCount; i++ {
+			key := fmt.Sprintf("%d.out", i)
+
+			if stdoutByte, ok := runnerCollectedStdout[key]; ok {
+				allStdin[i-1].Stdout = string(stdoutByte)
+			} else {
+				allStdin[i-1].Stdout = ""
+			}
 		}
 	}
+
 	// judge std::out
 	fmt.Printf("(%d) [Scheduler] Judging stdout \n", sid)
 	resultList := make([]*protobuf.JudgeCaseResult, testCaseCount)

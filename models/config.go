@@ -11,6 +11,7 @@ type JudgerConfigType struct {
 }
 
 type extensions struct {
+	HostBind   bool       `json:"host_bind"`
 	AutoPull   bool       `json:"auto_pull"`
 	CheckJudge checkJudge `json:"check_judge"`
 	Expire     expire     `json:"expire"`
