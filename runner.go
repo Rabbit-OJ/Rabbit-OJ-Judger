@@ -162,8 +162,6 @@ func Runner(
 		return nil, err
 	case status := <-statusCh:
 		if !config.Global.Extensions.HostBind {
-			// todo: handle no host bind config
-
 			if err := copyResultJsonFile(resp.ID, resultFilePathInHost); err != nil {
 				return nil, err
 			}

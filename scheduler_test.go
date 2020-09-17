@@ -5,17 +5,23 @@ import (
 	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
+	"sync"
 	"testing"
 )
 
-func TestInitJudger(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("%+v \n", err)
-			t.Fail()
-		}
-	}()
+var  (
+	alreadyInit = false
+	initMu sync.Mutex
+)
 
+func initJudger() {
+	initMu.Lock()
+	defer initMu.Unlock()
+	if alreadyInit {
+		return
+	}
+
+	alreadyInit = true
 	ctx, _ := context.WithCancel(context.Background())
 	cfg := &JudgerModels.JudgerConfigType{
 		Kafka: JudgerModels.KafkaConfig{
@@ -90,7 +96,17 @@ func TestInitJudger(t *testing.T) {
 	OnJudgeResponse = append(OnJudgeResponse, func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult) {
 		fmt.Println(sid, isContest, judgeResult)
 	})
+}
 
+func TestInitJudger(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	initJudger()
 	needImages := docker.GetNeedImages()
 	for image, need := range needImages {
 		if need {
@@ -99,3 +115,14 @@ func TestInitJudger(t *testing.T) {
 		}
 	}
 }
+
+//func TestScheduler(t *testing.T) {
+//	defer func() {
+//		if err := recover(); err != nil {
+//			fmt.Printf("%+v \n", err)
+//			t.Fail()
+//		}
+//	}()
+//
+//	initJudger()
+//}

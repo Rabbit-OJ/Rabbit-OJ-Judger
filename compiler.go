@@ -100,7 +100,6 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 		return nil, err
 	case status := <-statusCh:
 		if !config.Global.Extensions.HostBind {
-			// todo: handle multiple files
 			fmt.Printf("(%d) [Compile] Copying build production \n", sid)
 			reader, _, err := docker.Client.CopyFromContainer(docker.Context, resp.ID, path.Dir(compileInfo.BuildTarget))
 			if err != nil {
@@ -114,23 +113,14 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 			if err != nil {
 				return nil, err
 			}
-			//tarArchiveFile, err := docker.CopyFromContainer(docker.Context, resp.ID, path.Dir(compileInfo.BuildTarget))
-			//if err != nil {
-			//	return nil, err
-			//}
-			//
-			//for _, file := range tarArchiveFile {
-			//	fileName := file.Name
-			//	fileVmPath := filepath.Join(vmPath, fileName)
-			//	if err := ioutil.WriteFile(fileVmPath, file.Body, os.FileMode(file.Mode)); err != nil {
-			//		return err
-			//	}
-			//}
+
+			// todo: check if have magic number of build prod
+		} else {
+			if err := checkBuildResult(vmPath + path.Base(compileInfo.BuildTarget)); err != nil {
+				return nil, err
+			}
 		}
 
-		if err := checkBuildResult(vmPath + path.Base(compileInfo.BuildTarget)); err != nil {
-			return nil, err
-		}
 		fmt.Printf("(%d) %+v \n", sid, status)
 		break
 	case <-time.After(time.Duration(compileInfo.Constraints.BuildTimeout) * time.Second):
