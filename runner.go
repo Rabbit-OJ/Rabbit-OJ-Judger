@@ -118,7 +118,7 @@ func Runner(
 
 	if compileInfo.NoBuild {
 		sourceTarInfo := utils.TarFileBasicInfo{
-			Name: path.Base(compileInfo.Source),
+			Name: compileInfo.Source,
 			Body: code,
 			Mode: 0644,
 		}
@@ -136,7 +136,7 @@ func Runner(
 		if err := docker.Client.CopyToContainer(
 			docker.Context,
 			resp.ID,
-			path.Dir(compileInfo.Source),
+			"/",
 			io,
 			types.CopyToContainerOptions{
 				AllowOverwriteDirWithFile: true,

@@ -11,7 +11,7 @@ func ForceContainerRemove(ID string) {
 	fmt.Printf("[Docker] will force remove container %s", ID)
 	if err := Client.ContainerRemove(Context, ID, types.ContainerRemoveOptions{
 		RemoveVolumes: true,
-		RemoveLinks:   true,
+		RemoveLinks:   false,
 		Force:         true,
 	}); err != nil {
 		fmt.Printf("[Docker] Error when force removing %s container, %+v \n", ID, err)
