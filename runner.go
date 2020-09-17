@@ -171,7 +171,7 @@ func Runner(
 		}
 		fmt.Printf("(%d) %+v \n", sid, status)
 	case <-time.After(time.Duration(compileInfo.Constraints.RunTimeout) * time.Second):
-		docker.ForceContainerRemove(resp.ID)
+		go docker.ForceContainerRemove(resp.ID)
 		return nil, errors.New("run timeout")
 	}
 
