@@ -17,6 +17,13 @@ func CreateJudgeRequestConsumer(topics []string, group string) {
 	}
 
 	client, err := sarama.NewConsumerGroup(config.Global.Kafka.Brokers, group, saramaConfig)
+	go func() {
+		select {
+		case <-CancelCtx.Done():
+			_ = client.Close()
+		}
+	}()
+
 	if err != nil {
 		log.Panicf("Error when creating consumer group: %v", err)
 		return
