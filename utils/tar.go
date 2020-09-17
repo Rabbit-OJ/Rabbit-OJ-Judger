@@ -81,7 +81,8 @@ func AllFilesInDirToTarArchiveInfo(filePath, absPath string) ([]TarFileBasicInfo
 
 	for _, file := range files {
 		name := file.Name()
-		currentCasePath := filepath.Join(absPath, name)
+		currentCasePath := filepath.Join(filePath, name)
+		containerCasePath := filepath.Join(absPath, name)
 
 		fileBytes, err := ioutil.ReadFile(currentCasePath)
 		if err != nil {
@@ -89,7 +90,7 @@ func AllFilesInDirToTarArchiveInfo(filePath, absPath string) ([]TarFileBasicInfo
 		}
 
 		basicInfo = append(basicInfo, TarFileBasicInfo{
-			Name: currentCasePath,
+			Name: containerCasePath,
 			Body: fileBytes,
 			Mode: int64(file.Mode()),
 		})
