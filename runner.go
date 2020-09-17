@@ -109,7 +109,7 @@ func Runner(
 	var tarInfos []utils.TarFileBasicInfo
 	if !config.Global.Extensions.HostBind {
 		fmt.Printf("(%d) [Runner] Preparing judge cases for container \n", sid)
-		caseArchiveInfos, err := utils.AllFilesInDirToTarArchiveInfo(casePath)
+		caseArchiveInfos, err := utils.AllFilesInDirToTarArchiveInfo(casePath, "/case")
 		if err != nil {
 			return nil, err
 		}

@@ -71,7 +71,7 @@ func TarToFile(reader io.ReadCloser) ([]TarFileBasicInfo, error) {
 	return files, nil
 }
 
-func AllFilesInDirToTarArchiveInfo(filePath string) ([]TarFileBasicInfo, error) {
+func AllFilesInDirToTarArchiveInfo(filePath, absPath string) ([]TarFileBasicInfo, error) {
 	var basicInfo []TarFileBasicInfo
 
 	files, err := ioutil.ReadDir(filePath)
@@ -81,7 +81,7 @@ func AllFilesInDirToTarArchiveInfo(filePath string) ([]TarFileBasicInfo, error) 
 
 	for _, file := range files {
 		name := file.Name()
-		currentCasePath := filepath.Join(filePath, name)
+		currentCasePath := filepath.Join(absPath, name)
 
 		fileBytes, err := ioutil.ReadFile(currentCasePath)
 		if err != nil {
