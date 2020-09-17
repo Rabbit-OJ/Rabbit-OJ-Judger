@@ -43,7 +43,10 @@ func CallbackAllError(status string, sid uint32, isContest bool, datasetCount ui
 			return
 		}
 
-		mq.PublishMessageAsync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro)
+		if err := mq.PublishMessageSync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro);
+			err != nil {
+			fmt.Printf("[Callback] Error when callback error message to queue %+v \n", err)
+		}
 	}()
 }
 
@@ -66,6 +69,9 @@ func CallbackSuccess(sid uint32, isContest bool, resultList []*protobuf.JudgeCas
 			return
 		}
 
-		mq.PublishMessageAsync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro)
+		if err := mq.PublishMessageSync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro);
+			err != nil {
+			fmt.Printf("[Callback] Error when callback success message to queue %+v \n", err)
+		}
 	}()
 }
