@@ -1,45 +1,45 @@
 package models
 
 type JudgerConfigType struct {
-	Kafka       kafkaConfig `json:"kafka"`
-	Rpc         string      `json:"rpc"`
-	AutoRemove  autoRemove  `json:"auto_remove"`
-	Concurrent  concurrent  `json:"concurrent"`
-	LocalImages []string    `json:"local_images"`
-	Languages   []language  `json:"languages"`
-	Extensions  extensions  `json:"extensions"`
+	Kafka       KafkaConfig    `json:"kafka"`
+	Rpc         string         `json:"rpc"`
+	AutoRemove  AutoRemoveType `json:"auto_remove"`
+	Concurrent  ConcurrentType `json:"concurrent"`
+	LocalImages []string       `json:"local_images"`
+	Languages   []LanguageType `json:"languages"`
+	Extensions  ExtensionsType `json:"extensions"`
 }
 
-type extensions struct {
-	HostBind   bool       `json:"host_bind"`
-	AutoPull   bool       `json:"auto_pull"`
-	CheckJudge checkJudge `json:"check_judge"`
-	Expire     expire     `json:"expire"`
+type ExtensionsType struct {
+	HostBind   bool           `json:"host_bind"`
+	AutoPull   bool           `json:"auto_pull"`
+	CheckJudge CheckJudgeType `json:"check_judge"`
+	Expire     ExpireType     `json:"expire"`
 }
 
-type expire struct {
+type ExpireType struct {
 	Enabled  bool  `json:"enabled"`
 	Interval int64 `json:"interval"` // interval: minutes
 }
 
-type checkJudge struct {
+type CheckJudgeType struct {
 	Enabled  bool  `json:"enabled"`
 	Interval int64 `json:"interval"` // interval: minutes
 	Requeue  bool  `json:"requeue"`
 }
 
-type language struct {
+type LanguageType struct {
 	ID      string      `json:"id"`
 	Name    string      `json:"name"`
 	Enabled bool        `json:"enabled"`
 	Args    CompileInfo `json:"args"`
 }
 
-type concurrent struct {
+type ConcurrentType struct {
 	Judge uint `json:"judge"`
 }
 
-type autoRemove struct {
+type AutoRemoveType struct {
 	Containers bool `json:"containers"`
 	Files      bool `json:"files"`
 }
@@ -63,6 +63,6 @@ type Constraints struct {
 	Memory       int64 `json:"memory"`        // unit: bytes
 }
 
-type kafkaConfig struct {
+type KafkaConfig struct {
 	Brokers []string `json:"brokers"`
 }

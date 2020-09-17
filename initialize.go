@@ -8,7 +8,6 @@ import (
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
-	"os"
 )
 
 type StorageInitFuncType = func(tid uint32, version string) (uint32, uint32, string, error)
@@ -17,27 +16,31 @@ var (
 	StorageInitFunc StorageInitFuncType
 )
 
-func InitJudger(ctx context.Context, config *JudgerModels.JudgerConfigType, storageInitFunc StorageInitFuncType) {
+func InitJudger(ctx context.Context, config *JudgerModels.JudgerConfigType, storageInitFunc StorageInitFuncType, withDocker bool, withKafka bool, role string) {
 	JudgerConfig.Global = config
+	JudgerConfig.Role = role
 	StorageInitFunc = storageInitFunc
 
 	Language()
-	if os.Getenv("Role") == "Judge" {
+	if withDocker {
 		docker.InitDocker()
 	}
-	MQ(ctx)
+
+	if withKafka {
+		MQ(ctx)
+	}
 }
 
 func MQ(ctx context.Context) {
 	mq.InitKafka(ctx)
 
-	if os.Getenv("Role") == "Judge" {
+	if JudgerConfig.Role == "Judge" {
 		mq.JudgeRequestDeliveryChan = make(chan []byte)
 		mq.CreateJudgeRequestConsumer([]string{config.JudgeRequestTopicName}, "req1")
 		go JudgeRequestHandler()
 	}
 
-	if os.Getenv("Role") == "Server" {
+	if JudgerConfig.Role == "Server" {
 		mq.JudgeResponseDeliveryChan = make(chan []byte)
 		mq.CreateJudgeResponseConsumer([]string{config.JudgeResponseTopicName}, "res1")
 		go JudgeResultHandler()

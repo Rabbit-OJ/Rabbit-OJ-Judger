@@ -21,7 +21,7 @@ func InitDocker() {
 	}
 }
 
-func InitDockerImages() {
+func GetNeedImages() map[string]bool {
 	needImages := make(map[string]bool)
 
 	for _, item := range config.CompileObject {
@@ -48,6 +48,12 @@ func InitDockerImages() {
 			}
 		}
 	}
+
+	return needImages
+}
+
+func InitDockerImages() {
+	needImages := GetNeedImages()
 
 	for imageTag, need := range needImages {
 		if !need {
