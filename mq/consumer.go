@@ -28,11 +28,12 @@ func CreateJudgeRequestConsumer(topics []string, group string) {
 			fmt.Println("[MQ] topic: request consumer group running", group)
 
 			if err := client.Consume(ctx, topics, &consumer); err != nil {
-				log.Panicf("Error from consumer: %v", err)
+				fmt.Printf("Error from consumer consume: %+v \n", ctx.Err())
+				return
 			}
 
 			if ctx.Err() != nil {
-				log.Panicf("Error from ctx: %v", ctx.Err())
+				fmt.Printf("Error from ctx: %+v \n", ctx.Err())
 				return
 			}
 
