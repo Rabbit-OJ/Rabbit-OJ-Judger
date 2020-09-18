@@ -5,14 +5,35 @@ import (
 	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
 	"sync"
 	"testing"
 )
 
-var  (
+var (
 	alreadyInit = false
-	initMu sync.Mutex
+	initMu      sync.Mutex
 )
+
+func MockGetStorage(tid uint32, version string) ([]*JudgerModels.TestCaseType, error) {
+	if tid == uint32(1) {
+		testCases := []*JudgerModels.TestCaseType{
+			{
+				Id:     1,
+				Stdin:  []byte("1 2"),
+				Stdout: []byte("3"),
+			},
+			{
+				Id:     2,
+				Stdin:  []byte("3 5"),
+				Stdout: []byte("8"),
+			},
+		}
+
+		return testCases, nil
+	}
+	return make([]*JudgerModels.TestCaseType, 0), nil
+}
 
 func initJudger() {
 	initMu.Lock()
@@ -89,9 +110,7 @@ func initJudger() {
 		},
 	}
 
-	InitJudger(ctx, cfg, func(tid uint32, version string) ([]*JudgerModels.TestCaseType, error) {
-		return make([]*JudgerModels.TestCaseType, 0), nil
-	}, true, false, "Judge")
+	InitJudger(ctx, cfg, MockGetStorage, true, false, "Judge")
 
 	OnJudgeResponse = append(OnJudgeResponse, func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult) {
 		fmt.Println(sid, isContest, judgeResult)
@@ -116,13 +135,151 @@ func TestInitJudger(t *testing.T) {
 	}
 }
 
-//func TestScheduler(t *testing.T) {
-//	defer func() {
-//		if err := recover(); err != nil {
-//			fmt.Printf("%+v \n", err)
-//			t.Fail()
-//		}
-//	}()
-//
-//	initJudger()
-//}
+func testJudgeHelper(code []byte) (string, []*protobuf.JudgeCaseResult, error) {
+	initJudger()
+	return Scheduler(&protobuf.JudgeRequest{
+		Sid:        1,
+		Tid:        1,
+		Version:    "1",
+		Language:   "cpp17",
+		TimeLimit:  1000,
+		SpaceLimit: 128,
+		CompMode:   "STDIN_S",
+		Code:       code,
+		Time:       0,
+		IsContest:  false,
+	})
+}
+
+func TestShouldEmitCE(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	code := []byte("#include <iostream> \n" +
+		"int mian() { \n" +
+		"    return 0; \n" +
+		"}")
+	status, _, _ := testJudgeHelper(code)
+
+	if status != "CE" {
+		t.Fail()
+	}
+}
+
+func TestShouldEmitRE(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	code := []byte("#include <iostream> \n" +
+		"int main() { \n" +
+		"    exit(9); \n" +
+		"    return 0; \n" +
+		"}")
+	status, judgeResult, _ := testJudgeHelper(code)
+
+	if status != "OK" {
+		fmt.Println("[Should Emit RE] Status NOT OK")
+		t.Fail()
+	}
+	for _, result := range judgeResult {
+		if result.Status != "RE" {
+			fmt.Println("[Should Emit RE] Some Case Status NOT RE", result)
+			t.Fail()
+		}
+	}
+}
+
+func TestShouldEmitTLE(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	initJudger()
+
+	code := []byte("#include <iostream> \n" +
+		"int main() { \n" +
+		"    while (1) {} \n" +
+		"    return 0; \n" +
+		"}")
+	status, judgeResult, _ := testJudgeHelper(code)
+
+	if status != "OK" {
+		fmt.Println("[Should Emit TLE] Status NOT OK")
+		t.Fail()
+	}
+	for _, result := range judgeResult {
+		if result.Status != "TLE" {
+			fmt.Println("[Should Emit TLE] Some Case Status NOT TLE", result)
+			t.Fail()
+		}
+	}
+}
+
+func TestShouldEmitAC(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	code := []byte("#include <iostream> \n" +
+		"int main() { \n" +
+		"    int x, y; \n" +
+		"    std::cin >> x >> y; \n" +
+		"    std::cout << (x + y) << std::endl; \n" +
+		"    return 0; \n" +
+		"}")
+	status, judgeResult, _ := testJudgeHelper(code)
+
+	if status != "OK" {
+		fmt.Println("[Should Emit AC] Status NOT OK")
+		t.Fail()
+	}
+	for _, result := range judgeResult {
+		if result.Status != "AC" {
+			fmt.Println("[Should Emit AC] Some Case Status NOT AC", result)
+			t.Fail()
+		}
+	}
+}
+
+func TestShouldEmitWA(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	code := []byte("#include <iostream> \n" +
+		"int main() { \n" +
+		"    int x, y; \n" +
+		"    std::cin >> x >> y; \n" +
+		"    std::cout << (x * y) << std::endl; \n" +
+		"    return 0; \n" +
+		"}")
+	status, judgeResult, _ := testJudgeHelper(code)
+
+	if status != "OK" {
+		fmt.Println("[Should Emit WA] Status NOT OK")
+		t.Fail()
+	}
+	for _, result := range judgeResult {
+		if result.Status != "WA" {
+			fmt.Println("[Should Emit WA] Some Case Status NOT WA", result)
+			t.Fail()
+		}
+	}
+}

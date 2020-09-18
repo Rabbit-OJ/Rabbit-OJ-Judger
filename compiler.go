@@ -99,6 +99,10 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 	case err := <-errCh:
 		return nil, err
 	case status := <-statusCh:
+		if status.StatusCode != int64(0) {
+			return nil, errors.New("CE")
+		}
+
 		if !config.Global.Extensions.HostBind {
 			fmt.Printf("(%d) [Compile] Copying build production \n", sid)
 			reader, _, err := docker.Client.CopyFromContainer(docker.Context, resp.ID, path.Dir(compileInfo.BuildTarget))
