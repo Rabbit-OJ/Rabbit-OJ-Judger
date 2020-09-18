@@ -171,7 +171,8 @@ func testJudgeHelper(code []byte) (string, []*protobuf.JudgeCaseResult, error) {
 		IsContest:  false,
 	})
 
-	if err1 != err2 {
+	b1, b2 := err1 == nil, err2 == nil
+	if (b1 && !b2) || (!b1 && b2) {
 		panic("Inconsistency error state")
 	}
 
