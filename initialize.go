@@ -10,7 +10,7 @@ import (
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
 )
 
-type StorageGetFuncType = func(tid uint32, version string) ([]JudgerModels.TestCaseType, error)
+type StorageGetFuncType = func(tid uint32, version string) ([]*JudgerModels.TestCaseType, error)
 
 var (
 	StorageGetFunc StorageGetFuncType

@@ -89,8 +89,8 @@ func initJudger() {
 		},
 	}
 
-	InitJudger(ctx, cfg, func(tid uint32, version string) (uint32, uint32, string, error) {
-		return 1, 1, "1", nil
+	InitJudger(ctx, cfg, func(tid uint32, version string) ([]*JudgerModels.TestCaseType, error) {
+		return make([]*JudgerModels.TestCaseType, 0), nil
 	}, true, false, "Judge")
 
 	OnJudgeResponse = append(OnJudgeResponse, func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult) {

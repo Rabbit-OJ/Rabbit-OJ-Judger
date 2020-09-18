@@ -25,15 +25,16 @@ func JudgeRequestBridge(body []byte) {
 	}
 
 	status, report, err := Scheduler(judgeRequest)
+	sid := judgeRequest.Sid
 	if status == "Internal Error" {
-		fmt.Printf("(%d) [Bridge] Requeued due tu %+v \n", err)
+		fmt.Printf("(%d) [Bridge] Requeued due to %+v \n", sid, err)
 		Requeue(config.JudgeRequestTopicName, body)
 	} else if status != "OK" {
 		fmt.Printf("(%d) [Bridge] Calling back results \n", judgeRequest.Sid)
-		CallbackAllError(status, judgeRequest.Sid, judgeRequest.IsContest, len(report))
+		CallbackAllError(status, sid, judgeRequest.IsContest, len(report))
 	} else if status == "OK" {
 		fmt.Printf("(%d) [Bridge] Calling back results \n", judgeRequest.Sid)
-		CallbackSuccess(judgeRequest.Sid, judgeRequest.IsContest, report)
+		CallbackSuccess(sid, judgeRequest.IsContest, report)
 	}
 }
 
