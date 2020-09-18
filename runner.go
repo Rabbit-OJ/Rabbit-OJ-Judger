@@ -20,7 +20,8 @@ import (
 func Runner(
 	sid uint32, codePath string,
 	compileInfo *JudgerModels.CompileInfo,
-	caseCount, timeLimit, spaceLimit, casePath, outputPath string,
+	testCases []*JudgerModels.TestCaseType,
+	timeLimit, spaceLimit, outputPath string,
 	code []byte, buildProduction []byte,
 ) (map[string][]byte, error) {
 	vmPath := codePath + "vm/"
@@ -39,7 +40,7 @@ func Runner(
 		NetworkDisabled: true,
 		Env: []string{
 			"EXEC_COMMAND=" + compileInfo.RunArgsJSON,
-			"CASE_COUNT=" + caseCount,
+			"CASE_COUNT=" + fmt.Sprintf("%d", len(testCases)),
 			"TIME_LIMIT=" + timeLimit,
 			"SPACE_LIMIT=" + spaceLimit,
 			"Role=Tester",
@@ -48,13 +49,15 @@ func Runner(
 
 	containerHostConfig := &container.HostConfig{}
 	if config.Global.Extensions.HostBind {
-		containerHostConfig.Mounts = []mount.Mount{
-			{
-				Source:   casePath,
-				Target:   "/case",
-				ReadOnly: true,
-				Type:     mount.TypeBind,
-			},
+		if len(testCases) > 0 {
+			containerHostConfig.Mounts = []mount.Mount{
+				{
+					Source:   path.Dir(testCases[0].StdinPath),
+					Target:   "/case",
+					ReadOnly: true,
+					Type:     mount.TypeBind,
+				},
+			}
 		}
 
 		containerHostConfig.Binds = []string{
@@ -109,7 +112,7 @@ func Runner(
 	var tarInfos []utils.TarFileBasicInfo
 	if !config.Global.Extensions.HostBind {
 		fmt.Printf("(%d) [Runner] Preparing judge cases for container \n", sid)
-		caseArchiveInfos, err := utils.AllFilesInDirToTarArchiveInfo(casePath, "/case")
+		caseArchiveInfos, err := utils.TestCasesToTarArchiveInfo(testCases, "/case")
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +168,7 @@ func Runner(
 			if err := copyResultJsonFile(resp.ID, resultFilePathInHost); err != nil {
 				return nil, err
 			}
-			if collectedStdout, err = copyStdoutFile(resp.ID, outputPath); err != nil {
+			if collectedStdout, err = copyStdoutFile(resp.ID); err != nil {
 				return nil, err
 			}
 		}
@@ -210,7 +213,7 @@ func copyResultJsonFile(containerID, resultFilePathInHost string) error {
 //	return nil
 //}
 
-func copyStdoutFile(containerID, outputPath string) (map[string][]byte, error) {
+func copyStdoutFile(containerID string) (map[string][]byte, error) {
 	files, err := docker.CopyFromContainer(docker.Context, containerID, "/output")
 	if err != nil {
 		return nil, err

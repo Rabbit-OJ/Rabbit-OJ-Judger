@@ -10,16 +10,16 @@ import (
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
 )
 
-type StorageInitFuncType = func(tid uint32, version string) (uint32, uint32, string, error)
+type StorageGetFuncType = func(tid uint32, version string) ([]*JudgerModels.TestCaseType, error)
 
 var (
-	StorageInitFunc StorageInitFuncType
+	StorageGetFunc StorageGetFuncType
 )
 
-func InitJudger(ctx context.Context, config *JudgerModels.JudgerConfigType, storageInitFunc StorageInitFuncType, withDocker bool, withKafka bool, role string) {
+func InitJudger(ctx context.Context, config *JudgerModels.JudgerConfigType, storageGetFunc StorageGetFuncType, withDocker bool, withKafka bool, role string) {
 	JudgerConfig.Global = config
 	JudgerConfig.Role = role
-	StorageInitFunc = storageInitFunc
+	StorageGetFunc = storageGetFunc
 
 	Language()
 	if withDocker {

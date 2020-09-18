@@ -31,7 +31,13 @@ jobs:
         fi
 
     - name: Build Tester
-      run: git clone https://github.com/Rabbit-OJ/Rabbit-OJ-Backend.git && cd ./Rabbit-OJ-Backend && ./build.sh && cd ../ && cp ./Rabbit-OJ-Backend/tester ./tester && chmod +x ./tester
+      run: |
+        git clone https://github.com/Rabbit-OJ/Rabbit-OJ-Backend.git
+        cd ./Rabbit-OJ-Backend
+        ./build.sh
+        cd ../
+        cp ./Rabbit-OJ-Backend/tester ./tester
+        chmod +x ./tester
 
     - name: Test
       run: go test -v .

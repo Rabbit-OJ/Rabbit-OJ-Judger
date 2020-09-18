@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"fmt"
+	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"io"
 	"io/ioutil"
 	"path/filepath"
@@ -93,6 +94,24 @@ func AllFilesInDirToTarArchiveInfo(filePath, absPath string) ([]TarFileBasicInfo
 			Name: containerCasePath,
 			Body: fileBytes,
 			Mode: int64(file.Mode()),
+		})
+	}
+
+	return basicInfo, nil
+}
+
+func TestCasesToTarArchiveInfo(testCases []*JudgerModels.TestCaseType, absPath string) ([]TarFileBasicInfo, error) {
+	var basicInfo []TarFileBasicInfo
+
+	for _, testCase := range testCases {
+		id := testCase.Id
+		fileName := fmt.Sprintf("%d.in", id)
+		containerCasePath := filepath.Join(absPath, fileName)
+
+		basicInfo = append(basicInfo, TarFileBasicInfo{
+			Name: containerCasePath,
+			Body: testCase.Stdin,
+			Mode: 0644,
 		})
 	}
 
