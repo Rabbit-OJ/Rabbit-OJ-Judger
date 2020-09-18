@@ -52,7 +52,7 @@ func Runner(
 		if len(testCases) > 0 {
 			containerHostConfig.Mounts = []mount.Mount{
 				{
-					Source:   path.Dir(testCases[0].Path),
+					Source:   path.Dir(testCases[0].StdinPath),
 					Target:   "/case",
 					ReadOnly: true,
 					Type:     mount.TypeBind,
