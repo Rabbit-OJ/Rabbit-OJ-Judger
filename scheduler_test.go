@@ -23,15 +23,15 @@ func MockGetStorage(tid uint32, version string) ([]*JudgerModels.TestCaseType, e
 				Id:         1,
 				Stdin:      []byte("1 2"),
 				Stdout:     []byte("3"),
-				StdinPath:  "/mnt/case/1.in",
-				StdoutPath: "/mnt/case/1.out",
+				StdinPath:  "/home/case/1.in",
+				StdoutPath: "/home/case/1.out",
 			},
 			{
 				Id:         2,
 				Stdin:      []byte("3 5"),
 				Stdout:     []byte("8"),
-				StdinPath:  "/mnt/case/2.in",
-				StdoutPath: "/mnt/case/2.out",
+				StdinPath:  "/home/case/2.in",
+				StdoutPath: "/home/case/2.out",
 			},
 		}
 
