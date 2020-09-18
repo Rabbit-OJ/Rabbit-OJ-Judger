@@ -30,6 +30,14 @@ jobs:
             dep ensure
         fi
 
+    - name: Prepare Hostbind files
+      run: |
+        mkdir -p /mnt/case
+        echo "1 2" >> /mnt/case/1.in
+        echo "3" >> /mnt/case/1.out
+        echo "3 5" >> /mnt/case/2.in
+        echo "8" >> /mnt/case/2.out
+
     - name: Build Tester
       run: |
         git clone https://github.com/Rabbit-OJ/Rabbit-OJ-Backend.git

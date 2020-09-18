@@ -3,6 +3,7 @@ package judger
 import (
 	"context"
 	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
@@ -19,14 +20,18 @@ func MockGetStorage(tid uint32, version string) ([]*JudgerModels.TestCaseType, e
 	if tid == uint32(1) {
 		testCases := []*JudgerModels.TestCaseType{
 			{
-				Id:     1,
-				Stdin:  []byte("1 2"),
-				Stdout: []byte("3"),
+				Id:         1,
+				Stdin:      []byte("1 2"),
+				Stdout:     []byte("3"),
+				StdinPath:  "/mnt/case/1.in",
+				StdoutPath: "/mnt/case/1.out",
 			},
 			{
-				Id:     2,
-				Stdin:  []byte("3 5"),
-				Stdout: []byte("8"),
+				Id:         2,
+				Stdin:      []byte("3 5"),
+				Stdout:     []byte("8"),
+				StdinPath:  "/mnt/case/2.in",
+				StdoutPath: "/mnt/case/2.out",
 			},
 		}
 
@@ -137,7 +142,9 @@ func TestInitJudger(t *testing.T) {
 
 func testJudgeHelper(code []byte) (string, []*protobuf.JudgeCaseResult, error) {
 	initJudger()
-	return Scheduler(&protobuf.JudgeRequest{
+
+	config.Global.Extensions.HostBind = true
+	status1, result1, err1 := Scheduler(&protobuf.JudgeRequest{
 		Sid:        1,
 		Tid:        1,
 		Version:    "1",
@@ -149,6 +156,41 @@ func testJudgeHelper(code []byte) (string, []*protobuf.JudgeCaseResult, error) {
 		Time:       0,
 		IsContest:  false,
 	})
+
+	config.Global.Extensions.HostBind = false
+	status2, result2, err2 := Scheduler(&protobuf.JudgeRequest{
+		Sid:        1,
+		Tid:        1,
+		Version:    "1",
+		Language:   "cpp17",
+		TimeLimit:  1000,
+		SpaceLimit: 128,
+		CompMode:   "STDIN_S",
+		Code:       code,
+		Time:       0,
+		IsContest:  false,
+	})
+
+	if err1 != err2 {
+		panic("Inconsistency error state")
+	}
+
+	if status1 != status2 {
+		panic("Inconsistency state state")
+	}
+
+	if len(result1) != len(result2) {
+		panic("Inconsistency result length")
+	}
+
+	totalLength := len(result1)
+	for i := 0; i < totalLength; i++ {
+		if result1[i].Status != result2[i].Status {
+			panic("Inconsistency test case result")
+		}
+	}
+
+	return status1, result1, err1
 }
 
 func TestShouldEmitCE(t *testing.T) {
@@ -163,8 +205,8 @@ func TestShouldEmitCE(t *testing.T) {
 		"int mian() { \n" +
 		"    return 0; \n" +
 		"}")
-	status, _, _ := testJudgeHelper(code)
 
+	status, _, _ := testJudgeHelper(code)
 	if status != "CE" {
 		t.Fail()
 	}
