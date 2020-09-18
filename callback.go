@@ -18,7 +18,7 @@ var (
 	OnJudgeResponse []JudgeResponseCallback
 )
 
-func CallbackAllError(status string, sid uint32, isContest bool, datasetCount uint32) {
+func CallbackAllError(status string, sid uint32, isContest bool, datasetCount int) {
 	go func() {
 		CallbackWaitGroup.Add(1)
 		defer CallbackWaitGroup.Done()
