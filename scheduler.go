@@ -51,10 +51,6 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 	}
 
 	codePath := fmt.Sprintf("%s/", currentPath)
-	casePath, err := utils.JudgeCaseDir(request.Tid, request.Version)
-	if err != nil {
-		return "Internal Error", nil, err
-	}
 
 	compileInfo, ok := config.CompileObject[request.Language]
 	if !ok {
@@ -94,10 +90,9 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 		sid,
 		codePath,
 		&compileInfo,
-		strconv.FormatUint(uint64(testCaseCount), 10),
+		testCases,
 		strconv.FormatUint(uint64(request.TimeLimit), 10),
 		strconv.FormatUint(uint64(request.SpaceLimit), 10),
-		casePath,
 		outputPath,
 		request.Code,
 		buildProduction); err != nil {
