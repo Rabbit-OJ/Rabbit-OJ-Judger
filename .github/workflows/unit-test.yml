@@ -32,7 +32,7 @@ jobs:
 
     - name: Prepare Hostbind files
       run: |
-        mkdir -p /home/case
+        sudo mkdir -p /home/case
         echo "1 2" >> /home/case/1.in
         echo "3" >> /home/case/1.out
         echo "3 5" >> /home/case/2.in
