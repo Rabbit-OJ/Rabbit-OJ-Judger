@@ -23,15 +23,19 @@ func MockGetStorage(tid uint32, version string) ([]*JudgerModels.TestCaseType, e
 				Id:         1,
 				Stdin:      []byte("1 2"),
 				Stdout:     []byte("3"),
-				StdinPath:  "/home/case/1.in",
-				StdoutPath: "/home/case/1.out",
+				StdinPath:  "/Users/yangziyue/Downloads/case/1.in",
+				StdoutPath: "/Users/yangziyue/Downloads/case/1.out",
+				//StdinPath:  "/var/case/1.in",
+				//StdoutPath: "/var/case/1.out",
 			},
 			{
 				Id:         2,
 				Stdin:      []byte("3 5"),
 				Stdout:     []byte("8"),
-				StdinPath:  "/home/case/2.in",
-				StdoutPath: "/home/case/2.out",
+				StdinPath:  "/Users/yangziyue/Downloads/case/2.in",
+				StdoutPath: "/Users/yangziyue/Downloads/case/2.out",
+				//StdinPath:  "/var/case/2.in",
+				//StdoutPath: "/var/case/2.out",
 			},
 		}
 
@@ -186,6 +190,14 @@ func testJudgeHelper(code []byte) (string, []*protobuf.JudgeCaseResult, error) {
 
 	totalLength := len(result1)
 	for i := 0; i < totalLength; i++ {
+		if (result1[i] == nil && result2[i] != nil) || (result1[i] != nil && result2[i] == nil) {
+			panic("Inconsistency test case result")
+		}
+
+		if result1[i] == nil || result2[i] == nil {
+			continue
+		}
+
 		if result1[i].Status != result2[i].Status {
 			panic("Inconsistency test case result")
 		}

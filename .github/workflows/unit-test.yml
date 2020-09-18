@@ -33,10 +33,10 @@ jobs:
     - name: Prepare Hostbind files
       run: |
         sudo mkdir -p /home/case
-        echo "1 2" >> /home/case/1.in
-        echo "3" >> /home/case/1.out
-        echo "3 5" >> /home/case/2.in
-        echo "8" >> /home/case/2.out
+        sudo echo "1 2" >> /home/case/1.in
+        sudo echo "3" >> /home/case/1.out
+        sudo echo "3 5" >> /home/case/2.in
+        sudo echo "8" >> /home/case/2.out
 
     - name: Build Tester
       run: |

@@ -164,6 +164,10 @@ func Runner(
 	case err := <-errCh:
 		return nil, err
 	case status := <-statusCh:
+		if status.StatusCode != int64(0) {
+			return nil, errors.New("RE")
+		}
+
 		if !config.Global.Extensions.HostBind {
 			if err := copyResultJsonFile(resp.ID, resultFilePathInHost); err != nil {
 				return nil, err

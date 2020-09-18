@@ -60,10 +60,10 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 	fmt.Printf("(%d) [Scheduler] Init test cases \n", sid)
 	// get case
 	testCases, err := StorageGetFunc(request.Tid, request.Version)
-	testCaseCount := len(testCases)
 	if err != nil {
 		return "Internal Error", nil, err
 	}
+	testCaseCount := len(testCases)
 
 	var buildProduction []byte
 	if !compileInfo.NoBuild {
