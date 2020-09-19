@@ -20,18 +20,18 @@ func MockGetStorage(tid uint32, version string) ([]*JudgerModels.TestCaseType, e
 	if tid == uint32(1) {
 		testCases := []*JudgerModels.TestCaseType{
 			{
-				Id:         1,
-				Stdin:      []byte("1 2"),
-				Stdout:     []byte("3"),
+				Id:     1,
+				Stdin:  []byte("1 2"),
+				Stdout: []byte("3"),
 				//StdinPath:  "/Users/yangziyue/Downloads/case/1.in",
 				//StdoutPath: "/Users/yangziyue/Downloads/case/1.out",
 				StdinPath:  "/home/case/1.in",
 				StdoutPath: "/home/case/1.out",
 			},
 			{
-				Id:         2,
-				Stdin:      []byte("3 5"),
-				Stdout:     []byte("8"),
+				Id:     2,
+				Stdin:  []byte("3 5"),
+				Stdout: []byte("8"),
 				//StdinPath:  "/Users/yangziyue/Downloads/case/2.in",
 				//StdoutPath: "/Users/yangziyue/Downloads/case/2.out",
 				StdinPath:  "/home/case/2.in",
@@ -69,6 +69,8 @@ func initJudger() {
 		},
 		LocalImages: []string{
 			"alpine_tester:latest",
+			"python_tester:latest",
+			"java_tester:latest",
 		},
 		Languages: []JudgerModels.LanguageType{
 			{
@@ -101,6 +103,59 @@ func initJudger() {
 					RunArgs:     []string{"/home/code.o"},
 					RunArgsJSON: "[\"/home/code.o\"]",
 					RunImage:    "alpine_tester:latest",
+				},
+			},
+			{
+				ID:      "java11",
+				Name:    "Java/11",
+				Enabled: true,
+				Args: JudgerModels.CompileInfo{
+					BuildArgs: []string{
+						"javac",
+						"/home/Main.java",
+					},
+					Source:      "/home/Main.java",
+					NoBuild:     false,
+					BuildTarget: "/home/Main.class",
+					BuildImage:  "openjdk:11",
+					Constraints: JudgerModels.Constraints{
+						CPU:          1000000000,
+						Memory:       1073741824,
+						BuildTimeout: 120,
+						RunTimeout:   120,
+					},
+					RunArgs: []string{
+						"java",
+						"-cp",
+						"/home",
+						"Main",
+					},
+					RunArgsJSON: "[\"java\",\"-cp\",\"/home\",\"Main\"]",
+					RunImage:    "java_tester:latest",
+				},
+			},
+			{
+				ID:      "python3",
+				Name:    "Python/3",
+				Enabled: true,
+				Args: JudgerModels.CompileInfo{
+					BuildArgs: []string{},
+					Source:      "/home/code.py",
+					NoBuild:     false,
+					BuildTarget: "",
+					BuildImage:  "-",
+					Constraints: JudgerModels.Constraints{
+						CPU:          1000000000,
+						Memory:       1073741824,
+						BuildTimeout: 120,
+						RunTimeout:   120,
+					},
+					RunArgs: []string{
+						"python",
+						"/home/code.py",
+					},
+					RunArgsJSON: "[\"python\",\"/home/code.py\"]",
+					RunImage:    "python_tester:latest",
 				},
 			},
 		},
@@ -144,7 +199,7 @@ func TestInitJudger(t *testing.T) {
 	}
 }
 
-func testJudgeHelper(code []byte) (string, []*protobuf.JudgeCaseResult, error) {
+func testJudgeHelper(code []byte, language string) (string, []*protobuf.JudgeCaseResult, error) {
 	initJudger()
 
 	config.Global.Extensions.HostBind = true
@@ -152,7 +207,7 @@ func testJudgeHelper(code []byte) (string, []*protobuf.JudgeCaseResult, error) {
 		Sid:        1,
 		Tid:        1,
 		Version:    "1",
-		Language:   "cpp17",
+		Language:   language,
 		TimeLimit:  1000,
 		SpaceLimit: 128,
 		CompMode:   "STDIN_S",
@@ -219,7 +274,7 @@ func TestShouldEmitCE(t *testing.T) {
 		"    return 0; \n" +
 		"}")
 
-	status, _, _ := testJudgeHelper(code)
+	status, _, _ := testJudgeHelper(code, "cpp17")
 	if status != "CE" {
 		t.Fail()
 	}
@@ -238,7 +293,7 @@ func TestShouldEmitRE(t *testing.T) {
 		"    exit(9); \n" +
 		"    return 0; \n" +
 		"}")
-	status, judgeResult, _ := testJudgeHelper(code)
+	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
 
 	if status != "OK" {
 		fmt.Println("[Should Emit RE] Status NOT OK")
@@ -267,7 +322,7 @@ func TestShouldEmitTLE(t *testing.T) {
 		"    while (1) {} \n" +
 		"    return 0; \n" +
 		"}")
-	status, judgeResult, _ := testJudgeHelper(code)
+	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
 
 	if status != "OK" {
 		fmt.Println("[Should Emit TLE] Status NOT OK")
@@ -296,7 +351,7 @@ func TestShouldEmitAC(t *testing.T) {
 		"    std::cout << (x + y) << std::endl; \n" +
 		"    return 0; \n" +
 		"}")
-	status, judgeResult, _ := testJudgeHelper(code)
+	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
 
 	if status != "OK" {
 		fmt.Println("[Should Emit AC] Status NOT OK")
@@ -325,7 +380,7 @@ func TestShouldEmitWA(t *testing.T) {
 		"    std::cout << (x * y) << std::endl; \n" +
 		"    return 0; \n" +
 		"}")
-	status, judgeResult, _ := testJudgeHelper(code)
+	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
 
 	if status != "OK" {
 		fmt.Println("[Should Emit WA] Status NOT OK")
@@ -334,6 +389,63 @@ func TestShouldEmitWA(t *testing.T) {
 	for _, result := range judgeResult {
 		if result.Status != "WA" {
 			fmt.Println("[Should Emit WA] Some Case Status NOT WA", result)
+			t.Fail()
+		}
+	}
+}
+
+func TestJava11ShouldEmitAC(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	code := []byte("import java.io.*;\n " +
+		"import java.util.*;\n " +
+		"public class Rabbit {} \n " +
+		"public class Main {\n " +
+		"    public static void main(String args[]) throws Exception {\n " +
+		"        Rabbit rabbit = new Rabbit(); \n" +
+		"        Scanner cin=new Scanner(System.in);\n " +
+		"        int a = cin.nextInt(), b = cin.nextInt();\n " +
+		"        System.out.println(a+b);\n " +
+		"    } \n" +
+		"}")
+	status, judgeResult, _ := testJudgeHelper(code, "java11")
+
+	if status != "OK" {
+		fmt.Println("[Should Emit AC] Status NOT OK")
+		t.Fail()
+	}
+	for _, result := range judgeResult {
+		if result.Status != "AC" {
+			fmt.Println("[Should Emit AC] Some Case Status NOT AC", result)
+			t.Fail()
+		}
+	}
+}
+
+func TestPython3ShouldEmitAC(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	code := []byte("s = input().split()\n " +
+		"print(int(s[0]) + int(s[1]))")
+	status, judgeResult, _ := testJudgeHelper(code, "python3")
+
+	if status != "OK" {
+		fmt.Println("[Should Emit AC] Status NOT OK")
+		t.Fail()
+	}
+	for _, result := range judgeResult {
+		if result.Status != "AC" {
+			fmt.Println("[Should Emit AC] Some Case Status NOT AC", result)
 			t.Fail()
 		}
 	}
