@@ -3,6 +3,7 @@ package judger
 import (
 	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
@@ -14,26 +15,26 @@ import (
 func JudgeRequestBridge(body []byte) {
 	judgeRequest := &protobuf.JudgeRequest{}
 	if err := proto.Unmarshal(body, judgeRequest); err != nil {
-		fmt.Println(err)
+		logger.Println(err)
 		return
 	}
 
 	if config.Global.Extensions.Expire.Enabled &&
 		judgeRequest.Time-time.Now().Unix() > config.Global.Extensions.CheckJudge.Interval*int64(time.Minute) {
-		fmt.Printf("[Bridge] Received expired judge %d , will ignore this\n", judgeRequest.Sid)
+		logger.Printf("[Bridge] Received expired judge %d , will ignore this\n", judgeRequest.Sid)
 		return
 	}
 
 	status, report, err := Scheduler(judgeRequest)
 	sid := judgeRequest.Sid
 	if status == "Internal Error" {
-		fmt.Printf("(%d) [Bridge] Requeued due to %+v \n", sid, err)
+		logger.Printf("(%d) [Bridge] Requeued due to %+v \n", sid, err)
 		Requeue(config.JudgeRequestTopicName, body)
 	} else if status != "OK" {
-		fmt.Printf("(%d) [Bridge] Calling back results \n", judgeRequest.Sid)
+		logger.Printf("(%d) [Bridge] Calling back results \n", judgeRequest.Sid)
 		CallbackAllError(status, sid, judgeRequest.IsContest, len(report))
 	} else if status == "OK" {
-		fmt.Printf("(%d) [Bridge] Calling back results \n", judgeRequest.Sid)
+		logger.Printf("(%d) [Bridge] Calling back results \n", judgeRequest.Sid)
 		CallbackSuccess(sid, judgeRequest.IsContest, report)
 	}
 }
@@ -41,7 +42,7 @@ func JudgeRequestBridge(body []byte) {
 func JudgeResponseBridge(body []byte) {
 	judgeResult := &protobuf.JudgeResponse{}
 	if err := proto.Unmarshal(body, judgeResult); err != nil {
-		fmt.Println(err)
+		logger.Println(err)
 		return
 	}
 

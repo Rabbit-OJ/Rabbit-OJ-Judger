@@ -3,6 +3,7 @@ package judger
 import (
 	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/mq"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
@@ -23,7 +24,7 @@ func CallbackAllError(status string, sid uint32, isContest bool, datasetCount in
 		CallbackWaitGroup.Add(1)
 		defer CallbackWaitGroup.Done()
 
-		fmt.Printf("(%d) Callback judge error with status: %s \n", sid, status)
+		logger.Printf("(%d) Callback judge error with status: %s \n", sid, status)
 		ceResult := make([]*protobuf.JudgeCaseResult, datasetCount)
 		for i := range ceResult {
 			ceResult[i] = &protobuf.JudgeCaseResult{
@@ -39,13 +40,13 @@ func CallbackAllError(status string, sid uint32, isContest bool, datasetCount in
 
 		pro, err := proto.Marshal(response)
 		if err != nil {
-			fmt.Println(err)
+			logger.Println(err)
 			return
 		}
 
 		if err := mq.PublishMessageSync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro);
 			err != nil {
-			fmt.Printf("[Callback] Error when callback error message to queue %+v \n", err)
+			logger.Printf("[Callback] Error when callback error message to queue %+v \n", err)
 		}
 	}()
 }
@@ -55,7 +56,7 @@ func CallbackSuccess(sid uint32, isContest bool, resultList []*protobuf.JudgeCas
 		CallbackWaitGroup.Add(1)
 		defer CallbackWaitGroup.Done()
 
-		fmt.Printf("(%d) Callback judge success \n", sid)
+		logger.Printf("(%d) Callback judge success \n", sid)
 
 		response := &protobuf.JudgeResponse{
 			Sid:       sid,
@@ -65,13 +66,13 @@ func CallbackSuccess(sid uint32, isContest bool, resultList []*protobuf.JudgeCas
 
 		pro, err := proto.Marshal(response)
 		if err != nil {
-			fmt.Println(err)
+			logger.Println(err)
 			return
 		}
 
 		if err := mq.PublishMessageSync(config.JudgeResponseTopicName, []byte(fmt.Sprintf("%d", sid)), pro);
 			err != nil {
-			fmt.Printf("[Callback] Error when callback success message to queue %+v \n", err)
+			logger.Printf("[Callback] Error when callback success message to queue %+v \n", err)
 		}
 	}()
 }

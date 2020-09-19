@@ -2,8 +2,8 @@ package docker
 
 import (
 	"context"
-	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 )
@@ -34,13 +34,13 @@ func GetNeedImages() map[string]bool {
 		}
 	}
 
-	fmt.Println("[Docker] fetching image list")
+	logger.Println("[Docker] fetching image list")
 	images, err := Client.ImageList(Context, types.ImageListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("[Docker] comparing image list")
+	logger.Println("[Docker] comparing image list")
 	for _, image := range images {
 		for _, tag := range image.RepoTags {
 			if _, ok := needImages[tag]; ok {

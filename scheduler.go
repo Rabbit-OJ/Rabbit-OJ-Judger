@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	JudgerModel "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/utils"
@@ -23,12 +24,12 @@ type CollectedStdout struct {
 func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseResult, error) {
 	sid := request.Sid
 
-	fmt.Printf("========START JUDGE(%d)======== \n", sid)
-	fmt.Printf("(%d) [Scheduler] Received judge request \n", sid)
+	logger.Printf("========START JUDGE(%d)======== \n", sid)
+	logger.Printf("(%d) [Scheduler] Received judge request \n", sid)
 
 	startSchedule := time.Now()
 	defer func() {
-		fmt.Printf("(%d) [Scheduler] total cost : %d ms \n", sid, time.Since(startSchedule).Milliseconds())
+		logger.Printf("(%d) [Scheduler] total cost : %d ms \n", sid, time.Since(startSchedule).Milliseconds())
 	}()
 
 	// initialize files
@@ -38,7 +39,7 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 	}
 
 	defer func() {
-		fmt.Printf("(%d) [Scheduler] Cleaning files \n", sid)
+		logger.Printf("(%d) [Scheduler] Cleaning files \n", sid)
 		if config.Global.AutoRemove.Files {
 			_ = os.RemoveAll(currentPath)
 		}
@@ -57,7 +58,7 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 		return "Internal Error", nil, errors.New("language doesn't support")
 	}
 
-	fmt.Printf("(%d) [Scheduler] Init test cases \n", sid)
+	logger.Printf("(%d) [Scheduler] Init test cases \n", sid)
 	// get case
 	testCases, err := StorageGetFunc(request.Tid, request.Version)
 	if err != nil {
@@ -68,23 +69,23 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 	var buildProduction []byte
 	if !compileInfo.NoBuild {
 		// compile
-		fmt.Printf("(%d) [Scheduler] Start Compile \n", sid)
+		logger.Printf("(%d) [Scheduler] Start Compile \n", sid)
 		if buildProduction, err = Compiler(
 			sid,
 			codePath,
 			request.Code,
 			&compileInfo,
 		); err != nil {
-			fmt.Printf("(%d) [Scheduler] CE %+v \n", sid, err)
+			logger.Printf("(%d) [Scheduler] CE %+v \n", sid, err)
 			//CallbackAllError("CE", sid, request.IsContest, testCaseCount)
 			return "CE", make([]*protobuf.JudgeCaseResult, testCaseCount), err
 		}
 
-		fmt.Printf("(%d) [Scheduler] Compile OK \n", sid)
+		logger.Printf("(%d) [Scheduler] Compile OK \n", sid)
 	}
 
 	// run
-	fmt.Printf("(%d) [Scheduler] Start Runner \n", sid)
+	logger.Printf("(%d) [Scheduler] Start Runner \n", sid)
 	var runnerCollectedStdout map[string][]byte
 	if runnerCollectedStdout, err = Runner(
 		sid,
@@ -97,13 +98,13 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 		request.Code,
 		buildProduction); err != nil {
 
-		fmt.Printf("(%d) [Scheduler] RE %+v \n", sid, err)
+		logger.Printf("(%d) [Scheduler] RE %+v \n", sid, err)
 		//CallbackAllError("RE", sid, request.IsContest, testCaseCount)
 		return "RE", make([]*protobuf.JudgeCaseResult, testCaseCount), err
 	}
-	fmt.Printf("(%d) [Scheduler] Runner OK \n", sid)
+	logger.Printf("(%d) [Scheduler] Runner OK \n", sid)
 
-	fmt.Printf("(%d) [Scheduler] Reading result \n", sid)
+	logger.Printf("(%d) [Scheduler] Reading result \n", sid)
 	jsonFileByte, err := ioutil.ReadFile(filepath.Join(codePath, "result.json"))
 	if err != nil {
 		//CallbackAllError("RE", sid, request.IsContest, testCaseCount)
@@ -117,7 +118,7 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 	}
 
 	// collect std::out
-	fmt.Printf("(%d) [Scheduler] Collecting stdout \n", sid)
+	logger.Printf("(%d) [Scheduler] Collecting stdout \n", sid)
 	allStdin := make([]CollectedStdout, testCaseCount)
 	for i := 1; i <= testCaseCount; i++ {
 		allStdin[i-1].RightStdout = string(testCases[i-1].Stdout)
@@ -148,7 +149,7 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 	}
 
 	// judge std::out
-	fmt.Printf("(%d) [Scheduler] Judging stdout \n", sid)
+	logger.Printf("(%d) [Scheduler] Judging stdout \n", sid)
 	resultList := make([]*protobuf.JudgeCaseResult, testCaseCount)
 
 	for index, item := range allStdin {
@@ -162,6 +163,6 @@ func Scheduler(request *protobuf.JudgeRequest) (string, []*protobuf.JudgeCaseRes
 	}
 	//CallbackSuccess(sid, request.IsContest, resultList)
 
-	fmt.Printf("(%d) [Scheduler] Finish \n", sid)
+	logger.Printf("(%d) [Scheduler] Finish \n", sid)
 	return "OK", resultList, nil
 }

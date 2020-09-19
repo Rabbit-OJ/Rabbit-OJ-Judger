@@ -2,7 +2,7 @@ package judger
 
 import (
 	"context"
-	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	"sync"
 )
 
@@ -11,18 +11,18 @@ var (
 )
 
 func StartMachine(ctx context.Context, index uint, queueChan chan []byte) {
-	fmt.Printf("[Machine] Concurrent #%d started \n", index)
+	logger.Printf("[Machine] Concurrent #%d started \n", index)
 	MachineWaitGroup.Add(1)
 	defer MachineWaitGroup.Done()
 
 	for {
 		select {
 		case delivery := <-queueChan:
-			fmt.Printf("[Machine] #%d machine START \n", index)
+			logger.Printf("[Machine] #%d machine START \n", index)
 			JudgeRequestBridge(delivery)
-			fmt.Printf("[Machine] #%d machine FINISH \n", index)
+			logger.Printf("[Machine] #%d machine FINISH \n", index)
 		case <-ctx.Done():
-			fmt.Printf("[Machine] #%d machine Exited \n", index)
+			logger.Printf("[Machine] #%d machine Exited \n", index)
 			return
 		}
 	}

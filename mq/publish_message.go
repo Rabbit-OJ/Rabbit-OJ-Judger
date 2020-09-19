@@ -1,7 +1,7 @@
 package mq
 
 import (
-	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	"github.com/Shopify/sarama"
 )
 
@@ -23,7 +23,7 @@ func PublishMessageSync(topic string, key, value []byte) error {
 	}
 
 	if _, _, err := SyncProducer.SendMessage(mqMessage); err != nil {
-		fmt.Println("[MQ] sync send error ", err)
+		logger.Println("[MQ] sync send error ", err)
 		return err
 	}
 

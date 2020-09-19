@@ -2,9 +2,9 @@ package judger
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/utils"
 	"github.com/docker/docker/api/types"
@@ -17,9 +17,9 @@ import (
 
 func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModels.CompileInfo) ([]byte, error) {
 	vmPath := codePath + "vm/"
-	fmt.Printf("(%d) [Compile] Start %s \n", sid, codePath)
+	logger.Printf("(%d) [Compile] Start %s \n", sid, codePath)
 
-	fmt.Printf("(%d) [Compile] Touched empty output file for build \n", sid)
+	logger.Printf("(%d) [Compile] Touched empty output file for build \n", sid)
 	containerConfig := &container.Config{
 		Entrypoint:      compileInfo.BuildArgs,
 		Tty:             true,
@@ -45,7 +45,7 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 		containerHostConfig.AutoRemove = true
 	}
 
-	fmt.Printf("(%d) [Compile] Creating container \n", sid)
+	logger.Printf("(%d) [Compile] Creating container \n", sid)
 	resp, err := docker.Client.ContainerCreate(docker.Context,
 		containerConfig,
 		containerHostConfig,
@@ -62,7 +62,7 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 		}()
 	}
 
-	fmt.Printf("(%d) [Compile] Copying files to container \n", sid)
+	logger.Printf("(%d) [Compile] Copying files to container \n", sid)
 	io, err := utils.ConvertToTar(
 		[]utils.TarFileBasicInfo{
 			{path.Base(compileInfo.Source), code, 0644},
@@ -84,15 +84,15 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 		return nil, err
 	}
 
-	fmt.Printf("(%d) [Compile] Running container \n", sid)
+	logger.Printf("(%d) [Compile] Running container \n", sid)
 	if err := docker.Client.ContainerStart(docker.Context, resp.ID, types.ContainerStartOptions{}); err != nil {
-		fmt.Printf("(%d) %+v \n", sid, err)
+		logger.Printf("(%d) %+v \n", sid, err)
 		return nil, err
 	}
 
 	docker.ContainerErrToStdErr(resp.ID)
 	statusCh, errCh := docker.Client.ContainerWait(docker.Context, resp.ID, container.WaitConditionNotRunning)
-	fmt.Printf("(%d) [Compile] Waiting for status \n", sid)
+	logger.Printf("(%d) [Compile] Waiting for status \n", sid)
 
 	var compileProductionFiles []byte
 	select {
@@ -104,7 +104,7 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 		}
 
 		if !config.Global.Extensions.HostBind {
-			fmt.Printf("(%d) [Compile] Copying build production \n", sid)
+			logger.Printf("(%d) [Compile] Copying build production \n", sid)
 			reader, _, err := docker.Client.CopyFromContainer(docker.Context, resp.ID, path.Dir(compileInfo.BuildTarget))
 			if err != nil {
 				return nil, err
@@ -125,7 +125,7 @@ func Compiler(sid uint32, codePath string, code []byte, compileInfo *JudgerModel
 			}
 		}
 
-		fmt.Printf("(%d) %+v \n", sid, status)
+		logger.Printf("(%d) %+v \n", sid, status)
 		break
 	case <-time.After(time.Duration(compileInfo.Constraints.BuildTimeout) * time.Second):
 		go docker.ForceContainerRemove(resp.ID)

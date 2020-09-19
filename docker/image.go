@@ -2,6 +2,7 @@ package docker
 
 import (
 	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/utils"
 	"github.com/docker/docker/api/types"
 	"io"
@@ -10,7 +11,7 @@ import (
 )
 
 func PullImage(tag string) {
-	fmt.Println("[Docker] pulling image : " + tag)
+	logger.Println("[Docker] pulling image : " + tag)
 	out, err := Client.ImagePull(Context, tag, types.ImagePullOptions{})
 	if err != nil {
 		panic(err)
@@ -18,12 +19,12 @@ func PullImage(tag string) {
 	defer func() { _ = out.Close() }()
 
 	if _, err := io.Copy(os.Stderr, out); err != nil {
-		fmt.Println(err)
+		logger.Println(err)
 	}
 }
 
 func BuildImage(tag string) {
-	fmt.Println("[Docker] building image from local Dockerfile : " + tag)
+	logger.Println("[Docker] building image from local Dockerfile : " + tag)
 
 	name := strings.Split(tag, ":")[0]
 	dockerFileBytes, err := utils.ReadFileBytes(fmt.Sprintf("./dockerfiles/%s/Dockerfile", name))
@@ -57,6 +58,6 @@ func BuildImage(tag string) {
 	}
 
 	if _, err := io.Copy(os.Stderr, resp.Body); err != nil {
-		fmt.Println(err)
+		logger.Println(err)
 	}
 }

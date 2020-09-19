@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"fmt"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"io"
 	"io/ioutil"
@@ -30,15 +31,15 @@ func ConvertToTar(files []TarFileBasicInfo) (*bytes.Buffer, error) {
 		}
 
 		if err := writer.WriteHeader(hdr); err != nil {
-			fmt.Println(err)
+			logger.Println(err)
 		}
 		if _, err := writer.Write(file.Body); err != nil {
-			fmt.Println(err)
+			logger.Println(err)
 		}
 	}
 
 	if err := writer.Close(); err != nil {
-		fmt.Println(err)
+		logger.Println(err)
 	}
 	return &buf, nil
 }

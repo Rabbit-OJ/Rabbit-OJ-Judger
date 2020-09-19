@@ -2,8 +2,8 @@ package mq
 
 import (
 	"context"
-	"fmt"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
+	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/logger"
 	"log"
 
 	"github.com/Shopify/sarama"
@@ -32,15 +32,15 @@ func CreateJudgeRequestConsumer(topics []string, group string) {
 	ctx, _ := context.WithCancel(CancelCtx)
 	go func() {
 		for {
-			fmt.Println("[MQ] topic: request consumer group running", group)
+			logger.Println("[MQ] topic: request consumer group running", group)
 
 			if err := client.Consume(ctx, topics, &consumer); err != nil {
-				fmt.Printf("Error from consumer consume: %+v \n", err)
+				logger.Printf("Error from consumer consume: %+v \n", err)
 				return
 			}
 
 			if ctx.Err() != nil {
-				fmt.Printf("Error from ctx: %+v \n", ctx.Err())
+				logger.Printf("Error from ctx: %+v \n", ctx.Err())
 				return
 			}
 
@@ -65,7 +65,7 @@ func CreateJudgeResponseConsumer(topics []string, group string) {
 	ctx, _ := context.WithCancel(CancelCtx)
 	go func() {
 		for {
-			fmt.Println("[MQ] topic: response consumer group running", group)
+			logger.Println("[MQ] topic: response consumer group running", group)
 
 			if err := client.Consume(ctx, topics, &consumer); err != nil {
 				log.Panicf("Error from consumer: %v", err)
