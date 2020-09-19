@@ -448,8 +448,8 @@ func TestPython3ShouldEmitAC(t *testing.T) {
 		}
 	}()
 
-	code := []byte("s = input().split()\n " +
-		"print(int(s[0]) + int(s[1]))")
+	code := []byte("s = input().split()\n" +
+		"print(int(s[0]) + int(s[1]))\n")
 	status, judgeResult, _ := testJudgeHelper(code, "python3")
 
 	if status != "OK" {
