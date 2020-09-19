@@ -139,9 +139,9 @@ func initJudger() {
 				Name:    "Python/3",
 				Enabled: true,
 				Args: JudgerModels.CompileInfo{
-					BuildArgs: []string{},
+					BuildArgs:   []string{},
 					Source:      "/home/code.py",
-					NoBuild:     false,
+					NoBuild:     true,
 					BuildTarget: "",
 					BuildImage:  "-",
 					Constraints: JudgerModels.Constraints{
@@ -195,6 +195,7 @@ func TestInitJudger(t *testing.T) {
 		if need {
 			fmt.Printf("Need to image %s", image)
 			t.Fail()
+			return
 		}
 	}
 }
@@ -221,7 +222,7 @@ func testJudgeHelper(code []byte, language string) (string, []*protobuf.JudgeCas
 		Sid:        1,
 		Tid:        1,
 		Version:    "1",
-		Language:   "cpp17",
+		Language:   language,
 		TimeLimit:  1000,
 		SpaceLimit: 128,
 		CompMode:   "STDIN_S",
@@ -277,6 +278,7 @@ func TestShouldEmitCE(t *testing.T) {
 	status, _, _ := testJudgeHelper(code, "cpp17")
 	if status != "CE" {
 		t.Fail()
+		return
 	}
 }
 
@@ -298,11 +300,13 @@ func TestShouldEmitRE(t *testing.T) {
 	if status != "OK" {
 		fmt.Println("[Should Emit RE] Status NOT OK")
 		t.Fail()
+		return
 	}
 	for _, result := range judgeResult {
 		if result.Status != "RE" {
 			fmt.Println("[Should Emit RE] Some Case Status NOT RE", result)
 			t.Fail()
+			return
 		}
 	}
 }
@@ -327,11 +331,13 @@ func TestShouldEmitTLE(t *testing.T) {
 	if status != "OK" {
 		fmt.Println("[Should Emit TLE] Status NOT OK")
 		t.Fail()
+		return
 	}
 	for _, result := range judgeResult {
 		if result.Status != "TLE" {
 			fmt.Println("[Should Emit TLE] Some Case Status NOT TLE", result)
 			t.Fail()
+			return
 		}
 	}
 }
@@ -356,11 +362,13 @@ func TestShouldEmitAC(t *testing.T) {
 	if status != "OK" {
 		fmt.Println("[Should Emit AC] Status NOT OK")
 		t.Fail()
+		return
 	}
 	for _, result := range judgeResult {
 		if result.Status != "AC" {
 			fmt.Println("[Should Emit AC] Some Case Status NOT AC", result)
 			t.Fail()
+			return
 		}
 	}
 }
@@ -385,11 +393,13 @@ func TestShouldEmitWA(t *testing.T) {
 	if status != "OK" {
 		fmt.Println("[Should Emit WA] Status NOT OK")
 		t.Fail()
+		return
 	}
 	for _, result := range judgeResult {
 		if result.Status != "WA" {
 			fmt.Println("[Should Emit WA] Some Case Status NOT WA", result)
 			t.Fail()
+			return
 		}
 	}
 }
@@ -404,8 +414,8 @@ func TestJava11ShouldEmitAC(t *testing.T) {
 
 	code := []byte("import java.io.*;\n " +
 		"import java.util.*;\n " +
-		"public class Rabbit {} \n " +
 		"public class Main {\n " +
+		"    public class Rabbit {} \n" +
 		"    public static void main(String args[]) throws Exception {\n " +
 		"        Rabbit rabbit = new Rabbit(); \n" +
 		"        Scanner cin=new Scanner(System.in);\n " +
@@ -418,11 +428,13 @@ func TestJava11ShouldEmitAC(t *testing.T) {
 	if status != "OK" {
 		fmt.Println("[Should Emit AC] Status NOT OK")
 		t.Fail()
+		return
 	}
 	for _, result := range judgeResult {
 		if result.Status != "AC" {
 			fmt.Println("[Should Emit AC] Some Case Status NOT AC", result)
 			t.Fail()
+			return
 		}
 	}
 }
@@ -442,11 +454,13 @@ func TestPython3ShouldEmitAC(t *testing.T) {
 	if status != "OK" {
 		fmt.Println("[Should Emit AC] Status NOT OK")
 		t.Fail()
+		return
 	}
 	for _, result := range judgeResult {
 		if result.Status != "AC" {
 			fmt.Println("[Should Emit AC] Some Case Status NOT AC", result)
 			t.Fail()
+			return
 		}
 	}
 }
