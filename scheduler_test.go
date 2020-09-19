@@ -415,8 +415,9 @@ func TestJava11ShouldEmitAC(t *testing.T) {
 	code := []byte("import java.io.*;\n " +
 		"import java.util.*;\n " +
 		"public class Main {\n " +
-		"    public class Rabbit {} \n" +
+		"    public static class Rabbit {} \n" +
 		"    public static void main(String args[]) throws Exception {\n " +
+		"        Rabbit r = new Rabbit(); \n" +
 		"        Rabbit rabbit = new Rabbit(); \n" +
 		"        Scanner cin=new Scanner(System.in);\n " +
 		"        int a = cin.nextInt(), b = cin.nextInt();\n " +
