@@ -7,7 +7,6 @@ import (
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
-	"os"
 	"sync"
 	"testing"
 )
