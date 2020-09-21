@@ -84,7 +84,7 @@ jobs:
           git clone https://github.com/Rabbit-OJ/Rabbit-OJ-Tester-v2.git
           cd ./Rabbit-OJ-Tester-v2
           rustup target add x86_64-unknown-linux-musl
-          cargo build --target x86_64-unknown-linux-musl --release
+          cargo build --target x86_64-unknown-linux-musl
           cd ../
           cp ./Rabbit-OJ-Tester-v2/target/x86_64-unknown-linux-musl/release/Rabbit-OJ-Tester-v2 ./tester
           chmod +x ./tester

@@ -13,6 +13,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"time"
@@ -46,6 +47,10 @@ func Runner(
 			"SPACE_LIMIT=" + spaceLimit,
 			"Role=Tester",
 		},
+	}
+
+	if os.Getenv("DEV") == "1" {
+		containerConfig.Env = append(containerConfig.Env, "DEV=1")
 	}
 
 	containerHostConfig := &container.HostConfig{}

@@ -7,6 +7,7 @@ import (
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
+	"os"
 	"sync"
 	"testing"
 )
@@ -174,6 +175,7 @@ func initJudger() {
 		},
 	}
 
+	os.Setenv("DEV", "1")
 	InitJudger(ctx, cfg, MockGetStorage, true, false, "Judge")
 
 	OnJudgeResponse = append(OnJudgeResponse, func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult) {
