@@ -8,8 +8,8 @@ on:
 
 jobs:
 
-  build:
-    name: Build
+  tester_v1:
+    name: Tester_v1
     runs-on: ubuntu-latest
     steps:
 
@@ -38,13 +38,55 @@ jobs:
           sudo echo "3 5" >> /home/case/2.in
           sudo echo "8" >> /home/case/2.out
 
-      - name: Build Tester
+      - name: Build Tester v1
         run: |
           git clone https://github.com/Rabbit-OJ/Rabbit-OJ-Backend.git
           cd ./Rabbit-OJ-Backend
           ./build.sh
           cd ../
           cp ./Rabbit-OJ-Backend/tester ./tester
+          chmod +x ./tester
+
+      - name: Test
+        run: go test -v .
+  tester_v2:
+    name: Tester_v2
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          fi
+
+      - name: Prepare Hostbind files
+        run: |
+          sudo mkdir -p /home/case
+          sudo echo "1 2" >> /home/case/1.in
+          sudo echo "3" >> /home/case/1.out
+          sudo echo "3 5" >> /home/case/2.in
+          sudo echo "8" >> /home/case/2.out
+
+      - name: Build Tester v2
+        run: |
+          git clone https://github.com/Rabbit-OJ/Rabbit-OJ-Tester-v2.git
+          cd ./Rabbit-OJ-Tester-v2
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --target x86_64-unknown-linux-musl --release
+          cd ../
+          cp ./Rabbit-OJ-Tester-v2/target/x86_64-unknown-linux-musl/release/Rabbit-OJ-Tester-v2 ./tester
           chmod +x ./tester
 
       - name: Test
