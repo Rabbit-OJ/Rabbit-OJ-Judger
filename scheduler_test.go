@@ -175,7 +175,7 @@ func initJudger() {
 		},
 	}
 
-	os.Setenv("DEV", "1")
+	// os.Setenv("DEV", "1")
 	InitJudger(ctx, cfg, MockGetStorage, true, false, "Judge")
 
 	OnJudgeResponse = append(OnJudgeResponse, func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult) {
