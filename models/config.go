@@ -5,7 +5,7 @@ type JudgerConfigType struct {
 	Rpc         string         `json:"rpc"`
 	AutoRemove  AutoRemoveType `json:"auto_remove"`
 	Concurrent  ConcurrentType `json:"concurrent"`
-	LocalImages []string       `json:"local_images"`
+	BuildImages []string       `json:"local_images"`
 	Languages   []LanguageType `json:"languages"`
 	Extensions  ExtensionsType `json:"extensions"`
 }

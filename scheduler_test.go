@@ -67,7 +67,7 @@ func initJudger() {
 		Concurrent: JudgerModels.ConcurrentType{
 			Judge: 2,
 		},
-		LocalImages: []string{
+		BuildImages: []string{
 			"alpine_tester:latest",
 			"python_tester:latest",
 			"java_tester:latest",
@@ -218,6 +218,8 @@ func testJudgeHelper(code []byte, language string) (string, []*protobuf.JudgeCas
 		IsContest:  false,
 	})
 
+	fmt.Printf("[Result1] %+v \n", result1)
+
 	config.Global.Extensions.HostBind = false
 	status2, result2, err2 := Scheduler(&protobuf.JudgeRequest{
 		Sid:        1,
@@ -231,6 +233,8 @@ func testJudgeHelper(code []byte, language string) (string, []*protobuf.JudgeCas
 		Time:       0,
 		IsContest:  false,
 	})
+
+	fmt.Printf("[Result2] %+v \n", result2)
 
 	b1, b2 := err1 == nil, err2 == nil
 	if (b1 && !b2) || (!b1 && b2) {
@@ -416,10 +420,15 @@ func TestShouldEmitMLE(t *testing.T) {
 	initJudger()
 
 	code := []byte("#include <iostream> \n" +
+		"#include <cstring> \n" +
+		"using namespace std; \n" +
 		"int main() { \n" +
-		"    for (int i = 0; i < 10; i++) { int* a = new int[10000000]; } \n" +
-		"    int a, b, c; \n" +
-		"    cin >> a >> b >> c; \n" +
+		"    for (int i = 0; i < 10; i++) { \n" +
+		"        int* a = new int[10000000]; \n" +
+		"        memset(a, 0xff, sizeof a); \n" +
+		"    } \n" +
+		"    int f, b, c; \n" +
+		"    std::cin >> f >> b >> c; \n" +
 		"    return 0; \n" +
 		"}")
 	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
