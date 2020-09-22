@@ -174,7 +174,7 @@ func initJudger() {
 		},
 	}
 
-	// os.Setenv("DEV", "1")
+	//os.Setenv("DEV", "1")
 	InitJudger(ctx, cfg, MockGetStorage, true, false, "Judge")
 
 	OnJudgeResponse = append(OnJudgeResponse, func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult) {
@@ -399,6 +399,39 @@ func TestShouldEmitWA(t *testing.T) {
 	for _, result := range judgeResult {
 		if result.Status != "WA" {
 			fmt.Println("[Should Emit WA] Some Case Status NOT WA", result)
+			t.Fail()
+			return
+		}
+	}
+}
+
+func TestShouldEmitMLE(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	initJudger()
+
+	code := []byte("#include <iostream> \n" +
+		"int main() { \n" +
+		"    for (int i = 0; i < 10; i++) { int* a = new int[10000000]; } \n" +
+		"    int a, b, c; \n" +
+		"    cin >> a >> b >> c; \n" +
+		"    return 0; \n" +
+		"}")
+	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
+
+	if status != "OK" {
+		fmt.Println("[Should Emit MLE] Status NOT OK")
+		t.Fail()
+		return
+	}
+	for _, result := range judgeResult {
+		if result.Status != "MLE" {
+			fmt.Println("[Should Emit MLE] Some Case Status NOT MLE", result)
 			t.Fail()
 			return
 		}
