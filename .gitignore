@@ -13,7 +13,7 @@
 /files/storage.json
 /certs/*.key
 /certs/*.pem
-config.json
+/config.json
 **/.DS_Store
 ./run_args.txt
 /.vscode
