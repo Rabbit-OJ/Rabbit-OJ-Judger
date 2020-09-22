@@ -425,10 +425,9 @@ func TestShouldEmitMLE(t *testing.T) {
 		"int main() { \n" +
 		"    for (int i = 0; i < 10; i++) { \n" +
 		"        int* a = new int[10000000]; \n" +
-		"        memset(a, 0xff, sizeof a); \n" +
+		"        memset(a, 0xff, 10000000 * sizeof(int)); \n" +
 		"    } \n" +
-		"    int f, b, c; \n" +
-		"    std::cin >> f >> b >> c; \n" +
+		"    while (1) {} \n" +
 		"    return 0; \n" +
 		"}")
 	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
