@@ -12,11 +12,6 @@ jobs:
     name: Tester_v1
     runs-on: ubuntu-latest
     steps:
-      - name: Prepare submodule
-        run: |
-          git submodule init
-          git submodule update
-
       - name: Set up Go 1.15
         uses: actions/setup-go@v2
         with:
@@ -33,6 +28,11 @@ jobs:
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
               dep ensure
           fi
+
+      - name: Prepare submodule
+        run: |
+          git submodule init
+          git submodule update
 
       - name: Prepare Hostbind files
         run: |
