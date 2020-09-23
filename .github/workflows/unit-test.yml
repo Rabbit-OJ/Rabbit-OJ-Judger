@@ -75,6 +75,11 @@ jobs:
               dep ensure
           fi
 
+      - name: Prepare submodule
+        run: |
+          git submodule init
+          git submodule update
+
       - name: Prepare Hostbind files
         run: |
           sudo mkdir -p /home/case
