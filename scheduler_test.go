@@ -67,7 +67,7 @@ func initJudger() {
 		Concurrent: JudgerModels.ConcurrentType{
 			Judge: 2,
 		},
-		LocalImages: []string{
+		BuildImages: []string{
 			"alpine_tester:latest",
 			"python_tester:latest",
 			"java_tester:latest",
@@ -75,7 +75,7 @@ func initJudger() {
 		Languages: []JudgerModels.LanguageType{
 			{
 				ID:      "cpp17",
-				Name:    "C++17",
+				Name:    "C++/17",
 				Enabled: true,
 				Args: JudgerModels.CompileInfo{
 					BuildArgs: []string{
@@ -94,6 +94,35 @@ func initJudger() {
 					NoBuild:     false,
 					BuildTarget: "/home/code.o",
 					BuildImage:  "gcc:10.2.0",
+					Constraints: JudgerModels.Constraints{
+						CPU:          1000000000,
+						Memory:       1073741824,
+						BuildTimeout: 120,
+						RunTimeout:   120,
+					},
+					RunArgs:     []string{"/home/code.o"},
+					RunArgsJSON: "[\"/home/code.o\"]",
+					RunImage:    "alpine_tester:latest",
+				},
+			},
+			{
+				ID:      "rust",
+				Name:    "Rust/1.46",
+				Enabled: true,
+				Args: JudgerModels.CompileInfo{
+					BuildArgs: []string{
+						"rustc",
+						"-O",
+						"/home/code.rs",
+						"-o",
+						"/home/code.o",
+						"--target",
+						"x86_64-unknown-linux-musl",
+					},
+					Source:      "/home/code.rs",
+					NoBuild:     false,
+					BuildTarget: "/home/code.o",
+					BuildImage:  "rust:alpine",
 					Constraints: JudgerModels.Constraints{
 						CPU:          1000000000,
 						Memory:       1073741824,
@@ -174,7 +203,7 @@ func initJudger() {
 		},
 	}
 
-	// os.Setenv("DEV", "1")
+	//os.Setenv("DEV", "1")
 	InitJudger(ctx, cfg, MockGetStorage, true, false, "Judge")
 
 	OnJudgeResponse = append(OnJudgeResponse, func(sid uint32, isContest bool, judgeResult []*JudgerModels.JudgeResult) {
@@ -218,6 +247,8 @@ func testJudgeHelper(code []byte, language string) (string, []*protobuf.JudgeCas
 		IsContest:  false,
 	})
 
+	fmt.Printf("[Result1] %+v \n", result1)
+
 	config.Global.Extensions.HostBind = false
 	status2, result2, err2 := Scheduler(&protobuf.JudgeRequest{
 		Sid:        1,
@@ -231,6 +262,8 @@ func testJudgeHelper(code []byte, language string) (string, []*protobuf.JudgeCas
 		Time:       0,
 		IsContest:  false,
 	})
+
+	fmt.Printf("[Result2] %+v \n", result2)
 
 	b1, b2 := err1 == nil, err2 == nil
 	if (b1 && !b2) || (!b1 && b2) {
@@ -405,6 +438,43 @@ func TestShouldEmitWA(t *testing.T) {
 	}
 }
 
+func TestShouldEmitMLE(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	initJudger()
+
+	code := []byte("#include <iostream> \n" +
+		"#include <cstring> \n" +
+		"using namespace std; \n" +
+		"int main() { \n" +
+		"    for (int i = 0; i < 10; i++) { \n" +
+		"        int* a = new int[10000000]; \n" +
+		"        memset(a, 0xff, 10000000 * sizeof(int)); \n" +
+		"    } \n" +
+		"    while (1) {} \n" +
+		"    return 0; \n" +
+		"}")
+	status, judgeResult, _ := testJudgeHelper(code, "cpp17")
+
+	if status != "OK" {
+		fmt.Println("[Should Emit MLE] Status NOT OK")
+		t.Fail()
+		return
+	}
+	for _, result := range judgeResult {
+		if result.Status != "MLE" {
+			fmt.Println("[Should Emit MLE] Some Case Status NOT MLE", result)
+			t.Fail()
+			return
+		}
+	}
+}
+
 func TestJava11ShouldEmitAC(t *testing.T) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -452,6 +522,41 @@ func TestPython3ShouldEmitAC(t *testing.T) {
 	code := []byte("s = input().split()\n" +
 		"print(int(s[0]) + int(s[1]))\n")
 	status, judgeResult, _ := testJudgeHelper(code, "python3")
+
+	if status != "OK" {
+		fmt.Println("[Should Emit AC] Status NOT OK")
+		t.Fail()
+		return
+	}
+	for _, result := range judgeResult {
+		if result.Status != "AC" {
+			fmt.Println("[Should Emit AC] Some Case Status NOT AC", result)
+			t.Fail()
+			return
+		}
+	}
+}
+
+func TestRustShouldEmitAC(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("%+v \n", err)
+			t.Fail()
+		}
+	}()
+
+	code := []byte("use std::io;\n\n" +
+		"fn main(){\n" +
+		"    let mut input=String::new();\n" +
+		"    io::stdin().read_line(&mut input).unwrap();\n" +
+		"    let mut s=input.trim().split(' ');\n\n" +
+		"    let a:i32=s.next().unwrap()\n" +
+		"               .parse().unwrap();\n" +
+		"    let b:i32=s.next().unwrap()\n" +
+		"               .parse().unwrap();\n" +
+		"    println!(\"{}\",a+b);" +
+		"\n}")
+	status, judgeResult, _ := testJudgeHelper(code, "rust")
 
 	if status != "OK" {
 		fmt.Println("[Should Emit AC] Status NOT OK")

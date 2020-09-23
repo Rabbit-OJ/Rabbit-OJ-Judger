@@ -59,7 +59,7 @@ func Language() {
 	JudgerConfig.CompileObject = map[string]JudgerModels.CompileInfo{}
 	JudgerConfig.SupportLanguage = make([]JudgerModels.SupportLanguage, languageCount)
 
-	for _, item := range config.Global.LocalImages {
+	for _, item := range config.Global.BuildImages {
 		JudgerConfig.LocalImages[item] = true
 	}
 	for index, item := range config.Global.Languages {
