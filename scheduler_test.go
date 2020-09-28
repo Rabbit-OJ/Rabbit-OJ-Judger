@@ -3,12 +3,13 @@ package judger
 import (
 	"context"
 	"fmt"
+	"sync"
+	"testing"
+
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/config"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/docker"
 	JudgerModels "github.com/Rabbit-OJ/Rabbit-OJ-Judger/models"
 	"github.com/Rabbit-OJ/Rabbit-OJ-Judger/protobuf"
-	"sync"
-	"testing"
 )
 
 var (
@@ -67,11 +68,7 @@ func initJudger() {
 		Concurrent: JudgerModels.ConcurrentType{
 			Judge: 2,
 		},
-		BuildImages: []string{
-			"alpine_tester:latest",
-			"python_tester:latest",
-			"java_tester:latest",
-		},
+		BuildImages: []string{},
 		Languages: []JudgerModels.LanguageType{
 			{
 				ID:      "cpp17",
@@ -102,7 +99,7 @@ func initJudger() {
 					},
 					RunArgs:     []string{"/home/code.o"},
 					RunArgsJSON: "[\"/home/code.o\"]",
-					RunImage:    "alpine_tester:latest",
+					RunImage:    "rabbitoj/alpine_tester:0.19",
 				},
 			},
 			{
@@ -131,7 +128,7 @@ func initJudger() {
 					},
 					RunArgs:     []string{"/home/code.o"},
 					RunArgsJSON: "[\"/home/code.o\"]",
-					RunImage:    "alpine_tester:latest",
+					RunImage:    "rabbitoj/alpine_tester:0.19",
 				},
 			},
 			{
@@ -160,7 +157,7 @@ func initJudger() {
 						"Main",
 					},
 					RunArgsJSON: "[\"java\",\"-cp\",\"/home\",\"Main\"]",
-					RunImage:    "java_tester:latest",
+					RunImage:    "rabbitoj/java_tester:0.19",
 				},
 			},
 			{
@@ -184,7 +181,7 @@ func initJudger() {
 						"/home/code.py",
 					},
 					RunArgsJSON: "[\"python\",\"/home/code.py\"]",
-					RunImage:    "python_tester:latest",
+					RunImage:    "rabbitoj/python_tester:0.19",
 				},
 			},
 		},
